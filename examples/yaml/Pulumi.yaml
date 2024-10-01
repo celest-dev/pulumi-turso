@@ -1,20 +1,17 @@
-name: provider-xyz-native
+name: provider-turso-native
 runtime: yaml
 plugins:
   providers:
-    - name: xyz
+    - name: turso
       path: ../../bin
 
 resources:
-  myRandomResource:
-    type: xyz:Random
+  database:
+    type: turso:Database
     properties:
-      length: 24
-  myRandomComponent:
-    type: xyz:RandomComponent
-    properties:
-      length: 24
+      group: test
+      name: test-xyz
 
 outputs:
   output:
-    value: ${myRandomResource.result}
+    value: ${database.hostname}

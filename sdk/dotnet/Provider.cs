@@ -7,11 +7,18 @@ using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Pulumi.Serialization;
 
-namespace Pulumi.Xyz
+namespace Pulumi.Turso
 {
-    [XyzResourceType("pulumi:providers:xyz")]
+    [TursoResourceType("pulumi:providers:turso")]
     public partial class Provider : global::Pulumi.ProviderResource
     {
+        [Output("apiToken")]
+        public Output<string?> ApiToken { get; private set; } = null!;
+
+        [Output("organization")]
+        public Output<string?> Organization { get; private set; } = null!;
+
+
         /// <summary>
         /// Create a Provider resource with the given unique name, arguments, and options.
         /// </summary>
@@ -20,7 +27,7 @@ namespace Pulumi.Xyz
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
         public Provider(string name, ProviderArgs? args = null, CustomResourceOptions? options = null)
-            : base("xyz", name, args ?? new ProviderArgs(), MakeResourceOptions(options, ""))
+            : base("turso", name, args ?? new ProviderArgs(), MakeResourceOptions(options, ""))
         {
         }
 
@@ -39,8 +46,11 @@ namespace Pulumi.Xyz
 
     public sealed class ProviderArgs : global::Pulumi.ResourceArgs
     {
-        [Input("itsasecret", json: true)]
-        public Input<bool>? Itsasecret { get; set; }
+        [Input("apiToken")]
+        public Input<string>? ApiToken { get; set; }
+
+        [Input("organization")]
+        public Input<string>? Organization { get; set; }
 
         public ProviderArgs()
         {

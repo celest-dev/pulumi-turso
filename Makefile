@@ -1,10 +1,10 @@
-PROJECT_NAME := Pulumi Xyz Resource Provider
+PROJECT_NAME := Pulumi Turso Provider
 
-PACK             := xyz
+PACK             := turso
 PACKDIR          := sdk
-PROJECT          := github.com/pulumi/pulumi-xyz
-NODE_MODULE_NAME := @abc/xyz
-NUGET_PKG_NAME   := Abc.Xyz
+PROJECT          := github.com/celest-dev/pulumi-turso
+NODE_MODULE_NAME := @celest-dev/pulumi-turso
+NUGET_PKG_NAME   := Celest.Pulumi.Turso
 
 PROVIDER        := pulumi-resource-${PACK}
 VERSION         ?= $(shell pulumictl get version)
@@ -20,13 +20,22 @@ TESTPARALLELISM := 4
 OS    := $(shell uname)
 SHELL := /bin/bash
 
+openapi::
+	@echo "Generating OpenAPI client"
+	@cd $(TMPDIR); \
+		curl -sLo openapi.json "https://raw.githubusercontent.com/tursodatabase/turso-docs/refs/heads/main/api-reference/openapi.json"; \
+		jq -r '.paths["/v1/organizations/{organizationName}/groups/{groupName}/unarchive"].post.operationId = "unarchiveGroup"' openapi.json > openapi.1.json; \
+		jq -r '.components.schemas.Database.properties.schema |= . + {nullable: true}' openapi.1.json > openapi.2.json; \
+		cp openapi.2.json $(WORKING_DIR)/provider/internal/tursoclient/openapi.json
+	cd $(WORKING_DIR)/provider && go generate ./...
+
 prepare::
 	@if test -z "${NAME}"; then echo "NAME not set"; exit 1; fi
 	@if test -z "${REPOSITORY}"; then echo "REPOSITORY not set"; exit 1; fi
 	@if test -z "${ORG}"; then echo "ORG not set"; exit 1; fi
-	@if test ! -d "provider/cmd/pulumi-resource-xyz"; then "Project already prepared"; exit 1; fi # SED_SKIP
+	@if test ! -d "provider/cmd/pulumi-resource-turso"; then "Project already prepared"; exit 1; fi # SED_SKIP
 
-	mv "provider/cmd/pulumi-resource-xyz" provider/cmd/pulumi-resource-${NAME} # SED_SKIP
+	mv "provider/cmd/pulumi-resource-turso" provider/cmd/pulumi-resource-${NAME} # SED_SKIP
 
 	if [[ "${OS}" != "Darwin" ]]; then \
 		find . \( -path './.git' -o -path './sdk' \) -prune -o -not -name 'go.sum' -type f -exec sed -i '/SED_SKIP/!s,github.com/pulumi/pulumi-[x]yz,${REPOSITORY},g' {} \; &> /dev/null; \
@@ -66,6 +75,7 @@ dotnet_sdk::
 go_sdk:: $(WORKING_DIR)/bin/$(PROVIDER)
 	rm -rf sdk/go
 	pulumi package gen-sdk $(WORKING_DIR)/bin/$(PROVIDER) --language go
+	cd sdk && go mod tidy
 
 nodejs_sdk:: VERSION := $(shell pulumictl get version --language javascript)
 nodejs_sdk::
@@ -132,7 +142,8 @@ devcontainer::
 
 .PHONY: build
 
-build:: provider dotnet_sdk go_sdk nodejs_sdk python_sdk
+all:: provider go_sdk dotnet_sdk nodejs_sdk python_sdk
+build:: provider go_sdk
 
 # Required for the codegen action that runs in pulumi/pulumi
 only_build:: build

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Pulumi.Xyz
+namespace Pulumi.Turso
 {
     public static class Config
     {
@@ -30,13 +30,20 @@ namespace Pulumi.Xyz
             }
         }
 
-        private static readonly global::Pulumi.Config __config = new global::Pulumi.Config("xyz");
+        private static readonly global::Pulumi.Config __config = new global::Pulumi.Config("turso");
 
-        private static readonly __Value<bool?> _itsasecret = new __Value<bool?>(() => __config.GetBoolean("itsasecret"));
-        public static bool? Itsasecret
+        private static readonly __Value<string?> _apiToken = new __Value<string?>(() => __config.Get("apiToken"));
+        public static string? ApiToken
         {
-            get => _itsasecret.Get();
-            set => _itsasecret.Set(value);
+            get => _apiToken.Get();
+            set => _apiToken.Set(value);
+        }
+
+        private static readonly __Value<string?> _organization = new __Value<string?>(() => __config.Get("organization"));
+        public static string? Organization
+        {
+            get => _organization.Get();
+            set => _organization.Set(value);
         }
 
     }
