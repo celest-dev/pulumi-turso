@@ -1,21 +1,20 @@
 package main
 
 import (
-	"github.com/pulumi/pulumi-xyz/sdk/go/xyz"
+	"github.com/celest-dev/pulumi-turso/sdk/go/turso"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		myRandomResource, err := xyz.NewRandom(ctx, "myRandomResource", &xyz.RandomArgs{
-			Length: pulumi.Int(24),
+		database, err := turso.NewDatabase(ctx, "database", &turso.DatabaseArgs{
+			Group: pulumi.String("my-group"),
+			Name:  pulumi.String("my-database"),
 		})
 		if err != nil {
 			return err
 		}
-		ctx.Export("output", map[string]interface{}{
-			"value": myRandomResource.Result,
-		})
+		ctx.Export("databaseOutput", database)
 		return nil
 	})
 }

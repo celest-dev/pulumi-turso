@@ -5,7 +5,7 @@ before:
   hooks:
     - make gen
 builds:
-  - binary: pulumi-resource-xyz
+  - binary: pulumi-resource-turso
     dir: provider
     env:
       - CGO_ENABLED=0
@@ -18,10 +18,10 @@ builds:
       - linux
     ldflags:
       # The line below MUST align with the module in current provider/go.mod
-      - -X github.com/your-org-name/pulumi-xyz/provider/Version={{.Tag }}
-    main: ./cmd/pulumi-resource-xyz/
+      - -X github.com/celest-dev/pulumi-turso/provider/Version={{.Tag }}
+    main: ./cmd/pulumi-resource-turso/
 changelog:
-  skip: true
+  disable: true
 release:
   disable: false
   prerelease: auto

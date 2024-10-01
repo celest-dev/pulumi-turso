@@ -4,7 +4,10 @@
 // - https://code.visualstudio.com/docs/getstarted/settings
 {
   "name": "pulumi",
-  "image": "ghcr.io/pulumi/devcontainer",
+  "build": {
+    "dockerfile": "./.devcontainer/Dockerfile",
+    "context": "./.devcontainer"
+  },
   "customizations": {
     "vscode": {
       "settings": [
@@ -60,7 +63,7 @@
         "dockerDashComposeVersion": "v2"
     }
   },
-  "postCreateCommand": "git submodule update --init --recursive",
+  "postCreateCommand": "git config --global --add safe.directory /workspace/pulumi-turso && git submodule update --init --recursive",
   "remoteUser": "vscode",
   "forwardPorts": [1313],
   "runArgs": ["--network=host"]

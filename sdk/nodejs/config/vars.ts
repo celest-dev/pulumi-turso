@@ -5,12 +5,20 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
 declare var exports: any;
-const __config = new pulumi.Config("xyz");
+const __config = new pulumi.Config("turso");
 
-export declare const itsasecret: boolean | undefined;
-Object.defineProperty(exports, "itsasecret", {
+export declare const apiToken: string | undefined;
+Object.defineProperty(exports, "apiToken", {
     get() {
-        return __config.getObject<boolean>("itsasecret");
+        return __config.get("apiToken");
+    },
+    enumerable: true,
+});
+
+export declare const organization: string | undefined;
+Object.defineProperty(exports, "organization", {
+    get() {
+        return __config.get("organization");
     },
     enumerable: true,
 });
