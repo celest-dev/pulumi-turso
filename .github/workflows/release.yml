@@ -25,7 +25,11 @@ jobs:
         with:
           go-version-file: provider/go.mod
           cache: true
+          cache-dependency-path: |
+            examples/go/*.sum
+            provider/*.sum
+            sdk/*.sum
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5.0.0
         with:
-          args: -p 5 release --clean
+          args: -p 3 release --clean
