@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# See https://goreleaser.com/customization/ for more information
+version: 2
+builds:
+  - dir: provider
+    binary: pulumi-resource-turso
+    env:
+      - CGO_ENABLED=0
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - "-s -w -X github.com/celest-dev/pulumi-turso/provider/Version={{ .Tag }}"
+    goos:
+      - windows
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+archives:
+  - id: archive
+    name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
+snapshot:
+  name_template: "{{ .Tag }}-SNAPSHOT"
+changelog:
+  disable: true
+release:
+  disable: false
+  prerelease: auto
