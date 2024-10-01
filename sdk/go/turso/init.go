@@ -23,8 +23,12 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 	switch typ {
 	case "turso:index:Database":
 		r = &Database{}
+	case "turso:index:DatabaseToken":
+		r = &DatabaseToken{}
 	case "turso:index:Group":
 		r = &Group{}
+	case "turso:index:GroupToken":
+		r = &GroupToken{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

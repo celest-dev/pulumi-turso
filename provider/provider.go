@@ -55,7 +55,9 @@ func Provider() p.Provider {
 		},
 		Resources: []infer.InferredResource{
 			infer.Resource[Database](),
+			infer.Resource[DatabaseToken](),
 			infer.Resource[Group](),
+			infer.Resource[GroupToken](),
 		},
 		Config: infer.Config[*Config](),
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{

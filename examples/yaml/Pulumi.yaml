@@ -15,3 +15,15 @@ resources:
     properties:
       group: test
       name: test-${databaseTag.hex}
+  databaseToken:
+    type: turso:DatabaseToken
+    properties:
+      database: ${database.name}
+      expiration: 1h
+      authorization: read-only
+
+outputs:
+  database:
+    value: ${database.name}
+  databaseToken:
+    value: ${databaseToken.token}
