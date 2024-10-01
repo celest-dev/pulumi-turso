@@ -24,6 +24,7 @@ resources:
 
 outputs:
   database:
-    value: ${database.name}
+    hostname: ${database.hostname}
   databaseToken:
-    value: ${databaseToken.token}
+    token: ${databaseToken.token}
+    expiration: ${databaseToken.expiration}

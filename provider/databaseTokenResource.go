@@ -33,8 +33,8 @@ func (*DatabaseTokenAuthorization) Values() []infer.EnumValue[DatabaseTokenAutho
 
 type DatabaseTokenState struct {
 	DatabaseTokenArgs
-	Token     string     `pulumi:"token" json:"jwt" provider:"secret"`
-	ExpiresAt *time.Time `pulumi:"expiresAt,optional" json:"expiresAt"`
+	Token     string `pulumi:"token" json:"jwt" provider:"secret"`
+	ExpiresAt string `pulumi:"expiresAt,optional" json:"expiresAt,omitempty"`
 }
 
 var (
@@ -54,15 +54,14 @@ func (DatabaseToken) Create(ctx context.Context, name string, input DatabaseToke
 	client := config.client
 
 	var expiration tursoclient.OptString
-	var expiresAt *time.Time
+	var expiresAt string
 	if input.Expiration != nil {
 		expirationDuration, err := time.ParseDuration(*input.Expiration)
 		if err != nil {
 			return "", DatabaseTokenState{}, fmt.Errorf("error parsing expiration duration: %w", err)
 		}
 		expiration = tursoclient.NewOptString(expirationDuration.String())
-		exp := time.Now().Add(expirationDuration)
-		expiresAt = &exp
+		expiresAt = time.Now().Add(expirationDuration).Format(time.RFC3339)
 	}
 	var authorization tursoclient.OptCreateDatabaseTokenAuthorization
 	if input.Authorization != nil {
@@ -116,8 +115,14 @@ func (DatabaseToken) Diff(ctx context.Context, id string, olds DatabaseTokenStat
 	if olds.Expiration != news.Expiration {
 		diff["expiration"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
-	if olds.ExpiresAt != nil && olds.ExpiresAt.Before(time.Now()) {
-		diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
+	if olds.ExpiresAt != "" {
+		oldExp, err := time.Parse(time.RFC3339, olds.ExpiresAt)
+		if err != nil {
+			return p.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
+		}
+		if time.Now().After(oldExp) {
+			diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
+		}
 	}
 	return p.DiffResponse{
 		DeleteBeforeReplace: false,
