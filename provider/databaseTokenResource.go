@@ -39,6 +39,7 @@ type DatabaseTokenState struct {
 
 var (
 	_ infer.CustomCreate[DatabaseTokenArgs, DatabaseTokenState] = DatabaseToken{}
+	_ infer.CustomRead[DatabaseTokenArgs, DatabaseTokenState]   = DatabaseToken{}
 	_ infer.CustomDiff[DatabaseTokenArgs, DatabaseTokenState]   = DatabaseToken{}
 )
 
@@ -95,6 +96,10 @@ func (DatabaseToken) Create(ctx context.Context, name string, input DatabaseToke
 	default:
 		return "", DatabaseTokenState{}, fmt.Errorf("unexpected response creating database token: %T", token)
 	}
+}
+
+func (DatabaseToken) Read(ctx context.Context, id string, inputs DatabaseTokenArgs, state DatabaseTokenState) (canonicalID string, normalizedInputs DatabaseTokenArgs, normalizedState DatabaseTokenState, err error) {
+	return id, inputs, state, nil
 }
 
 func (DatabaseToken) Diff(ctx context.Context, id string, olds DatabaseTokenState, news DatabaseTokenArgs) (p.DiffResponse, error) {
