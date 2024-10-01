@@ -52,6 +52,7 @@ func Provider() p.Provider {
 					ModulePath:                     "github.com/celest-dev/pulumi-turso/sdk",
 				},
 			},
+			PluginDownloadURL: "github://api.github.com/celest-dev/pulumi-turso",
 		},
 		Resources: []infer.InferredResource{
 			infer.Resource[Database](),
