@@ -177,9 +177,351 @@ func (in *databaseSeedTypePtr) ToDatabaseSeedTypePtrOutputWithContext(ctx contex
 	return pulumi.ToOutputWithContext(ctx, in).(DatabaseSeedTypePtrOutput)
 }
 
+type DatabaseTokenAuthorization string
+
+const (
+	// Full access to the database
+	DatabaseTokenAuthorization_Full_Access = DatabaseTokenAuthorization("full-access")
+	// Read only access to the database
+	DatabaseTokenAuthorization_Read_Only = DatabaseTokenAuthorization("read-only")
+)
+
+func (DatabaseTokenAuthorization) ElementType() reflect.Type {
+	return reflect.TypeOf((*DatabaseTokenAuthorization)(nil)).Elem()
+}
+
+func (e DatabaseTokenAuthorization) ToDatabaseTokenAuthorizationOutput() DatabaseTokenAuthorizationOutput {
+	return pulumi.ToOutput(e).(DatabaseTokenAuthorizationOutput)
+}
+
+func (e DatabaseTokenAuthorization) ToDatabaseTokenAuthorizationOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DatabaseTokenAuthorizationOutput)
+}
+
+func (e DatabaseTokenAuthorization) ToDatabaseTokenAuthorizationPtrOutput() DatabaseTokenAuthorizationPtrOutput {
+	return e.ToDatabaseTokenAuthorizationPtrOutputWithContext(context.Background())
+}
+
+func (e DatabaseTokenAuthorization) ToDatabaseTokenAuthorizationPtrOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationPtrOutput {
+	return DatabaseTokenAuthorization(e).ToDatabaseTokenAuthorizationOutputWithContext(ctx).ToDatabaseTokenAuthorizationPtrOutputWithContext(ctx)
+}
+
+func (e DatabaseTokenAuthorization) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DatabaseTokenAuthorization) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DatabaseTokenAuthorization) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DatabaseTokenAuthorization) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DatabaseTokenAuthorizationOutput struct{ *pulumi.OutputState }
+
+func (DatabaseTokenAuthorizationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DatabaseTokenAuthorization)(nil)).Elem()
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToDatabaseTokenAuthorizationOutput() DatabaseTokenAuthorizationOutput {
+	return o
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToDatabaseTokenAuthorizationOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationOutput {
+	return o
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToDatabaseTokenAuthorizationPtrOutput() DatabaseTokenAuthorizationPtrOutput {
+	return o.ToDatabaseTokenAuthorizationPtrOutputWithContext(context.Background())
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToDatabaseTokenAuthorizationPtrOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DatabaseTokenAuthorization) *DatabaseTokenAuthorization {
+		return &v
+	}).(DatabaseTokenAuthorizationPtrOutput)
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DatabaseTokenAuthorization) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DatabaseTokenAuthorizationOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DatabaseTokenAuthorization) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DatabaseTokenAuthorizationPtrOutput struct{ *pulumi.OutputState }
+
+func (DatabaseTokenAuthorizationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DatabaseTokenAuthorization)(nil)).Elem()
+}
+
+func (o DatabaseTokenAuthorizationPtrOutput) ToDatabaseTokenAuthorizationPtrOutput() DatabaseTokenAuthorizationPtrOutput {
+	return o
+}
+
+func (o DatabaseTokenAuthorizationPtrOutput) ToDatabaseTokenAuthorizationPtrOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationPtrOutput {
+	return o
+}
+
+func (o DatabaseTokenAuthorizationPtrOutput) Elem() DatabaseTokenAuthorizationOutput {
+	return o.ApplyT(func(v *DatabaseTokenAuthorization) DatabaseTokenAuthorization {
+		if v != nil {
+			return *v
+		}
+		var ret DatabaseTokenAuthorization
+		return ret
+	}).(DatabaseTokenAuthorizationOutput)
+}
+
+func (o DatabaseTokenAuthorizationPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DatabaseTokenAuthorizationPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DatabaseTokenAuthorization) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DatabaseTokenAuthorizationInput is an input type that accepts values of the DatabaseTokenAuthorization enum
+// A concrete instance of `DatabaseTokenAuthorizationInput` can be one of the following:
+//
+//	DatabaseTokenAuthorization_Full_Access
+//	DatabaseTokenAuthorization_Read_Only
+type DatabaseTokenAuthorizationInput interface {
+	pulumi.Input
+
+	ToDatabaseTokenAuthorizationOutput() DatabaseTokenAuthorizationOutput
+	ToDatabaseTokenAuthorizationOutputWithContext(context.Context) DatabaseTokenAuthorizationOutput
+}
+
+var databaseTokenAuthorizationPtrType = reflect.TypeOf((**DatabaseTokenAuthorization)(nil)).Elem()
+
+type DatabaseTokenAuthorizationPtrInput interface {
+	pulumi.Input
+
+	ToDatabaseTokenAuthorizationPtrOutput() DatabaseTokenAuthorizationPtrOutput
+	ToDatabaseTokenAuthorizationPtrOutputWithContext(context.Context) DatabaseTokenAuthorizationPtrOutput
+}
+
+type databaseTokenAuthorizationPtr string
+
+func DatabaseTokenAuthorizationPtr(v string) DatabaseTokenAuthorizationPtrInput {
+	return (*databaseTokenAuthorizationPtr)(&v)
+}
+
+func (*databaseTokenAuthorizationPtr) ElementType() reflect.Type {
+	return databaseTokenAuthorizationPtrType
+}
+
+func (in *databaseTokenAuthorizationPtr) ToDatabaseTokenAuthorizationPtrOutput() DatabaseTokenAuthorizationPtrOutput {
+	return pulumi.ToOutput(in).(DatabaseTokenAuthorizationPtrOutput)
+}
+
+func (in *databaseTokenAuthorizationPtr) ToDatabaseTokenAuthorizationPtrOutputWithContext(ctx context.Context) DatabaseTokenAuthorizationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DatabaseTokenAuthorizationPtrOutput)
+}
+
+type GroupTokenAuthorization string
+
+const (
+	// Full access to the database
+	GroupTokenAuthorization_Full_Access = GroupTokenAuthorization("full-access")
+	// Read only access to the database
+	GroupTokenAuthorization_Read_Only = GroupTokenAuthorization("read-only")
+)
+
+func (GroupTokenAuthorization) ElementType() reflect.Type {
+	return reflect.TypeOf((*GroupTokenAuthorization)(nil)).Elem()
+}
+
+func (e GroupTokenAuthorization) ToGroupTokenAuthorizationOutput() GroupTokenAuthorizationOutput {
+	return pulumi.ToOutput(e).(GroupTokenAuthorizationOutput)
+}
+
+func (e GroupTokenAuthorization) ToGroupTokenAuthorizationOutputWithContext(ctx context.Context) GroupTokenAuthorizationOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(GroupTokenAuthorizationOutput)
+}
+
+func (e GroupTokenAuthorization) ToGroupTokenAuthorizationPtrOutput() GroupTokenAuthorizationPtrOutput {
+	return e.ToGroupTokenAuthorizationPtrOutputWithContext(context.Background())
+}
+
+func (e GroupTokenAuthorization) ToGroupTokenAuthorizationPtrOutputWithContext(ctx context.Context) GroupTokenAuthorizationPtrOutput {
+	return GroupTokenAuthorization(e).ToGroupTokenAuthorizationOutputWithContext(ctx).ToGroupTokenAuthorizationPtrOutputWithContext(ctx)
+}
+
+func (e GroupTokenAuthorization) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e GroupTokenAuthorization) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e GroupTokenAuthorization) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e GroupTokenAuthorization) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type GroupTokenAuthorizationOutput struct{ *pulumi.OutputState }
+
+func (GroupTokenAuthorizationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*GroupTokenAuthorization)(nil)).Elem()
+}
+
+func (o GroupTokenAuthorizationOutput) ToGroupTokenAuthorizationOutput() GroupTokenAuthorizationOutput {
+	return o
+}
+
+func (o GroupTokenAuthorizationOutput) ToGroupTokenAuthorizationOutputWithContext(ctx context.Context) GroupTokenAuthorizationOutput {
+	return o
+}
+
+func (o GroupTokenAuthorizationOutput) ToGroupTokenAuthorizationPtrOutput() GroupTokenAuthorizationPtrOutput {
+	return o.ToGroupTokenAuthorizationPtrOutputWithContext(context.Background())
+}
+
+func (o GroupTokenAuthorizationOutput) ToGroupTokenAuthorizationPtrOutputWithContext(ctx context.Context) GroupTokenAuthorizationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v GroupTokenAuthorization) *GroupTokenAuthorization {
+		return &v
+	}).(GroupTokenAuthorizationPtrOutput)
+}
+
+func (o GroupTokenAuthorizationOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o GroupTokenAuthorizationOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e GroupTokenAuthorization) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o GroupTokenAuthorizationOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o GroupTokenAuthorizationOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e GroupTokenAuthorization) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type GroupTokenAuthorizationPtrOutput struct{ *pulumi.OutputState }
+
+func (GroupTokenAuthorizationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**GroupTokenAuthorization)(nil)).Elem()
+}
+
+func (o GroupTokenAuthorizationPtrOutput) ToGroupTokenAuthorizationPtrOutput() GroupTokenAuthorizationPtrOutput {
+	return o
+}
+
+func (o GroupTokenAuthorizationPtrOutput) ToGroupTokenAuthorizationPtrOutputWithContext(ctx context.Context) GroupTokenAuthorizationPtrOutput {
+	return o
+}
+
+func (o GroupTokenAuthorizationPtrOutput) Elem() GroupTokenAuthorizationOutput {
+	return o.ApplyT(func(v *GroupTokenAuthorization) GroupTokenAuthorization {
+		if v != nil {
+			return *v
+		}
+		var ret GroupTokenAuthorization
+		return ret
+	}).(GroupTokenAuthorizationOutput)
+}
+
+func (o GroupTokenAuthorizationPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o GroupTokenAuthorizationPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *GroupTokenAuthorization) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// GroupTokenAuthorizationInput is an input type that accepts values of the GroupTokenAuthorization enum
+// A concrete instance of `GroupTokenAuthorizationInput` can be one of the following:
+//
+//	GroupTokenAuthorization_Full_Access
+//	GroupTokenAuthorization_Read_Only
+type GroupTokenAuthorizationInput interface {
+	pulumi.Input
+
+	ToGroupTokenAuthorizationOutput() GroupTokenAuthorizationOutput
+	ToGroupTokenAuthorizationOutputWithContext(context.Context) GroupTokenAuthorizationOutput
+}
+
+var groupTokenAuthorizationPtrType = reflect.TypeOf((**GroupTokenAuthorization)(nil)).Elem()
+
+type GroupTokenAuthorizationPtrInput interface {
+	pulumi.Input
+
+	ToGroupTokenAuthorizationPtrOutput() GroupTokenAuthorizationPtrOutput
+	ToGroupTokenAuthorizationPtrOutputWithContext(context.Context) GroupTokenAuthorizationPtrOutput
+}
+
+type groupTokenAuthorizationPtr string
+
+func GroupTokenAuthorizationPtr(v string) GroupTokenAuthorizationPtrInput {
+	return (*groupTokenAuthorizationPtr)(&v)
+}
+
+func (*groupTokenAuthorizationPtr) ElementType() reflect.Type {
+	return groupTokenAuthorizationPtrType
+}
+
+func (in *groupTokenAuthorizationPtr) ToGroupTokenAuthorizationPtrOutput() GroupTokenAuthorizationPtrOutput {
+	return pulumi.ToOutput(in).(GroupTokenAuthorizationPtrOutput)
+}
+
+func (in *groupTokenAuthorizationPtr) ToGroupTokenAuthorizationPtrOutputWithContext(ctx context.Context) GroupTokenAuthorizationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(GroupTokenAuthorizationPtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*DatabaseSeedTypeInput)(nil)).Elem(), DatabaseSeedType("database"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DatabaseSeedTypePtrInput)(nil)).Elem(), DatabaseSeedType("database"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DatabaseTokenAuthorizationInput)(nil)).Elem(), DatabaseTokenAuthorization("full-access"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DatabaseTokenAuthorizationPtrInput)(nil)).Elem(), DatabaseTokenAuthorization("full-access"))
+	pulumi.RegisterInputType(reflect.TypeOf((*GroupTokenAuthorizationInput)(nil)).Elem(), GroupTokenAuthorization("full-access"))
+	pulumi.RegisterInputType(reflect.TypeOf((*GroupTokenAuthorizationPtrInput)(nil)).Elem(), GroupTokenAuthorization("full-access"))
 	pulumi.RegisterOutputType(DatabaseSeedTypeOutput{})
 	pulumi.RegisterOutputType(DatabaseSeedTypePtrOutput{})
+	pulumi.RegisterOutputType(DatabaseTokenAuthorizationOutput{})
+	pulumi.RegisterOutputType(DatabaseTokenAuthorizationPtrOutput{})
+	pulumi.RegisterOutputType(GroupTokenAuthorizationOutput{})
+	pulumi.RegisterOutputType(GroupTokenAuthorizationPtrOutput{})
 }

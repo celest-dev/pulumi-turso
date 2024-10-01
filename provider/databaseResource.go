@@ -42,8 +42,8 @@ var _ infer.Enum[DatabaseSeedType] = (*DatabaseSeedType)(nil)
 
 func (*DatabaseSeedType) Values() []infer.EnumValue[DatabaseSeedType] {
 	return []infer.EnumValue[DatabaseSeedType]{
-		{Value: "database", Name: "Database", Description: "Uses an database to seed the new database."},
-		{Value: "dump", Name: "Dump", Description: "Uses a database dump to seed the new database."},
+		{Value: DatabaseSeedTypeDatabase, Name: "Database", Description: "Uses an database to seed the new database."},
+		{Value: DatabaseSeedTypeDump, Name: "Dump", Description: "Uses a database dump to seed the new database."},
 	}
 }
 
