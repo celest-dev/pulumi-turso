@@ -39,6 +39,7 @@ type GroupTokenState struct {
 
 var (
 	_ infer.CustomCreate[GroupTokenArgs, GroupTokenState] = GroupToken{}
+	_ infer.CustomRead[GroupTokenArgs, GroupTokenState]   = GroupToken{}
 	_ infer.CustomDiff[GroupTokenArgs, GroupTokenState]   = GroupToken{}
 )
 
@@ -95,6 +96,10 @@ func (GroupToken) Create(ctx context.Context, name string, input GroupTokenArgs,
 	default:
 		return "", GroupTokenState{}, fmt.Errorf("unexpected response creating group token: %T", token)
 	}
+}
+
+func (GroupToken) Read(ctx context.Context, id string, inputs GroupTokenArgs, state GroupTokenState) (canonicalID string, normalizedInputs GroupTokenArgs, normalizedState GroupTokenState, err error) {
+	return id, inputs, state, nil
 }
 
 func (GroupToken) Diff(ctx context.Context, id string, olds GroupTokenState, news GroupTokenArgs) (p.DiffResponse, error) {

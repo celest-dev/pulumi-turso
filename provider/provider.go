@@ -41,18 +41,20 @@ func Provider() p.Provider {
 		Metadata: schema.Metadata{
 			DisplayName: "Turso",
 			Description: "A Pulumi package for creating and managing Turso resources.",
-			Keywords:    []string{"pulumi", "turso", "database", "sqlite", "sqlite3", "libsql"},
-			Repository:  "https://github.com/celest-dev/pulumi-turso",
-			Publisher:   "Celest",
+			Keywords: []string{
+				"pulumi", "turso", "database", "sqlite", "sqlite3", "libsql",
+				"kind/native",
+			},
+			Repository:        "https://github.com/celest-dev/pulumi-turso",
+			Publisher:         "celest-dev",
+			License:           "Apache-2.0",
+			PluginDownloadURL: "github://api.github.com/celest-dev/pulumi-turso",
 			LanguageMap: map[string]any{
 				"go": goGen.GoPackageInfo{
-					RespectSchemaVersion:           true,
 					GenerateResourceContainerTypes: true,
 					ImportBasePath:                 "github.com/celest-dev/pulumi-turso/sdk/go/turso",
-					ModulePath:                     "github.com/celest-dev/pulumi-turso/sdk",
 				},
 			},
-			PluginDownloadURL: "github://api.github.com/celest-dev/pulumi-turso",
 		},
 		Resources: []infer.InferredResource{
 			infer.Resource[Database](),
