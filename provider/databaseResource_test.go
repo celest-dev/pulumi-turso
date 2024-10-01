@@ -14,11 +14,7 @@ import (
 
 func TestDatabaseResource(t *testing.T) {
 	server := integration.NewServer("turso", semver.Version{Minor: 1}, Provider())
-	err := server.Configure(provider.ConfigureRequest{
-		Args: presource.NewPropertyMapFromMap(map[string]interface{}{
-			"organization": "celest-dev",
-		}),
-	})
+	err := server.Configure(provider.ConfigureRequest{})
 	assert.NoError(t, err)
 
 	dbName := fmt.Sprintf("test-%d", rand.IntN(100000))

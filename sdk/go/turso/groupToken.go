@@ -9,7 +9,6 @@ import (
 
 	"errors"
 	"github.com/celest-dev/pulumi-turso/sdk/go/turso/internal"
-	"github.com/celest-dev/pulumi-turso/sdk/go/turso/time"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -19,7 +18,7 @@ type GroupToken struct {
 	Authorization GroupTokenAuthorizationPtrOutput `pulumi:"authorization"`
 	Database      pulumi.StringOutput              `pulumi:"database"`
 	Expiration    pulumi.StringPtrOutput           `pulumi:"expiration"`
-	ExpiresAt     time.TimePtrOutput               `pulumi:"expiresAt"`
+	ExpiresAt     pulumi.StringPtrOutput           `pulumi:"expiresAt"`
 	ReadAttach    pulumi.StringArrayOutput         `pulumi:"readAttach"`
 	Token         pulumi.StringOutput              `pulumi:"token"`
 }
@@ -184,8 +183,8 @@ func (o GroupTokenOutput) Expiration() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *GroupToken) pulumi.StringPtrOutput { return v.Expiration }).(pulumi.StringPtrOutput)
 }
 
-func (o GroupTokenOutput) ExpiresAt() time.TimePtrOutput {
-	return o.ApplyT(func(v *GroupToken) time.TimePtrOutput { return v.ExpiresAt }).(time.TimePtrOutput)
+func (o GroupTokenOutput) ExpiresAt() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *GroupToken) pulumi.StringPtrOutput { return v.ExpiresAt }).(pulumi.StringPtrOutput)
 }
 
 func (o GroupTokenOutput) ReadAttach() pulumi.StringArrayOutput {

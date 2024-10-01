@@ -34,10 +34,11 @@ func main() {
 			return err
 		}
 		ctx.Export("database", pulumi.StringMap{
-			"value": databaseResource.Name,
+			"hostname": databaseResource.Hostname,
 		})
 		ctx.Export("databaseToken", pulumi.StringMap{
-			"value": databaseTokenResource.Token,
+			"token":      databaseTokenResource.Token,
+			"expiration": databaseTokenResource.Expiration,
 		})
 		return nil
 	})
