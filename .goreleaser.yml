@@ -1,9 +1,12 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # See https://goreleaser.com/customization/ for more information
 version: 2
+gomod:
+  dir: provider
 builds:
   - dir: provider
     binary: pulumi-resource-turso
+    main: ./cmd/pulumi-resource-turso/
     env:
       - CGO_ENABLED=0
     mod_timestamp: "{{ .CommitTimestamp }}"
@@ -22,7 +25,7 @@ archives:
   - id: archive
     name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
 snapshot:
-  name_template: "{{ .Tag }}-SNAPSHOT"
+  version_template: "{{ .Tag }}-SNAPSHOT"
 changelog:
   disable: true
 release:
