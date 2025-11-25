@@ -6,7 +6,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/ogen-go/ogen v1.4.1
 	github.com/pulumi/pulumi-go-provider v1.2.0
 	github.com/pulumi/pulumi/pkg/v3 v3.208.0
