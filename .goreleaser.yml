@@ -14,7 +14,7 @@ builds:
     flags:
       - -trimpath
     ldflags:
-      - "-s -w -X github.com/celest-dev/pulumi-turso/provider/Version={{ .Tag }}"
+      - "-s -w -X github.com/celest-dev/pulumi-turso/provider.Version={{ .Tag }}"
     goos:
       - windows
       - linux
