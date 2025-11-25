@@ -1,7 +1,6 @@
 {
   "name": "turso",
   "displayName": "Turso",
-  "version": "0.2.0",
   "description": "A Pulumi package for creating and managing Turso resources.",
   "keywords": [
     "pulumi",
