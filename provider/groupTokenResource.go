@@ -13,11 +13,26 @@ import (
 
 type GroupToken struct{}
 
+var _ infer.Annotated = (*GroupToken)(nil)
+
+func (t *GroupToken) Annotate(a infer.Annotator) {
+	a.Describe(&t, "An authentication token for a Turso group. Tokens can be used to connect to any database in the group with specific permissions.")
+}
+
 type GroupTokenArgs struct {
-	Group         string                   `pulumi:"database"`
+	Group         string                   `pulumi:"group"`
 	Authorization *GroupTokenAuthorization `pulumi:"authorization,optional"`
 	ReadAttach    []string                 `pulumi:"readAttach,optional"`
 	Expiration    *string                  `pulumi:"expiration,optional"`
+}
+
+var _ infer.Annotated = (*GroupTokenArgs)(nil)
+
+func (args *GroupTokenArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.Group, "The name of the group to create the token for.")
+	a.Describe(&args.Authorization, "The authorization level for the token. Defaults to full-access if not specified.")
+	a.Describe(&args.ReadAttach, "List of databases that can be attached for read operations using this token.")
+	a.Describe(&args.Expiration, "The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.")
 }
 
 type GroupTokenAuthorization tursoclient.CreateGroupTokenAuthorization
@@ -35,6 +50,13 @@ type GroupTokenState struct {
 	GroupTokenArgs
 	Token     string `pulumi:"token" json:"jwt" provider:"secret"`
 	ExpiresAt string `pulumi:"expiresAt,optional" json:"expiresAt,omitempty"`
+}
+
+var _ infer.Annotated = (*GroupTokenState)(nil)
+
+func (state *GroupTokenState) Annotate(a infer.Annotator) {
+	a.Describe(&state.Token, "The JWT token used to authenticate with databases in the group.")
+	a.Describe(&state.ExpiresAt, "The RFC3339 timestamp when the token expires, if an expiration was set.")
 }
 
 var (

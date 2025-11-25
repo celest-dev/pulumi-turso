@@ -81,6 +81,13 @@ type Config struct {
 }
 
 var _ infer.CustomConfigure = (*Config)(nil)
+var _ infer.Annotated = (*Config)(nil)
+
+func (c *Config) Annotate(a infer.Annotator) {
+	a.Describe(&c, "Configuration for the Turso provider.")
+	a.Describe(&c.APIToken, "The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.")
+	a.Describe(&c.OrganizationSlug, "The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.")
+}
 
 func (config *Config) Configure(ctx context.Context) error {
 	p.GetLogger(ctx).Info("Configuring Turso provider")

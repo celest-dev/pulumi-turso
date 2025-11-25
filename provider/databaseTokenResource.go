@@ -13,11 +13,26 @@ import (
 
 type DatabaseToken struct{}
 
+var _ infer.Annotated = (*DatabaseToken)(nil)
+
+func (t *DatabaseToken) Annotate(a infer.Annotator) {
+	a.Describe(&t, "An authentication token for a Turso database. Tokens can be used to connect to the database with specific permissions.")
+}
+
 type DatabaseTokenArgs struct {
 	Database      string                      `pulumi:"database"`
 	Authorization *DatabaseTokenAuthorization `pulumi:"authorization,optional"`
 	ReadAttach    []string                    `pulumi:"readAttach,optional"`
 	Expiration    *string                     `pulumi:"expiration,optional"`
+}
+
+var _ infer.Annotated = (*DatabaseTokenArgs)(nil)
+
+func (args *DatabaseTokenArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.Database, "The name of the database to create the token for.")
+	a.Describe(&args.Authorization, "The authorization level for the token. Defaults to full-access if not specified.")
+	a.Describe(&args.ReadAttach, "List of databases that can be attached for read operations using this token.")
+	a.Describe(&args.Expiration, "The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.")
 }
 
 type DatabaseTokenAuthorization tursoclient.CreateDatabaseTokenAuthorization
@@ -35,6 +50,13 @@ type DatabaseTokenState struct {
 	DatabaseTokenArgs
 	Token     string `pulumi:"token" json:"jwt" provider:"secret"`
 	ExpiresAt string `pulumi:"expiresAt,optional" json:"expiresAt,omitempty"`
+}
+
+var _ infer.Annotated = (*DatabaseTokenState)(nil)
+
+func (state *DatabaseTokenState) Annotate(a infer.Annotator) {
+	a.Describe(&state.Token, "The JWT token used to authenticate with the database.")
+	a.Describe(&state.ExpiresAt, "The RFC3339 timestamp when the token expires, if an expiration was set.")
 }
 
 var (

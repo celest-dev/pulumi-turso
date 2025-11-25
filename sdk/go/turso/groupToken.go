@@ -12,15 +12,22 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// An authentication token for a Turso group. Tokens can be used to connect to any database in the group with specific permissions.
 type GroupToken struct {
 	pulumi.CustomResourceState
 
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization GroupTokenAuthorizationPtrOutput `pulumi:"authorization"`
-	Database      pulumi.StringOutput              `pulumi:"database"`
-	Expiration    pulumi.StringPtrOutput           `pulumi:"expiration"`
-	ExpiresAt     pulumi.StringPtrOutput           `pulumi:"expiresAt"`
-	ReadAttach    pulumi.StringArrayOutput         `pulumi:"readAttach"`
-	Token         pulumi.StringOutput              `pulumi:"token"`
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration pulumi.StringPtrOutput `pulumi:"expiration"`
+	// The RFC3339 timestamp when the token expires, if an expiration was set.
+	ExpiresAt pulumi.StringPtrOutput `pulumi:"expiresAt"`
+	// The name of the group to create the token for.
+	Group pulumi.StringOutput `pulumi:"group"`
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach pulumi.StringArrayOutput `pulumi:"readAttach"`
+	// The JWT token used to authenticate with databases in the group.
+	Token pulumi.StringOutput `pulumi:"token"`
 }
 
 // NewGroupToken registers a new resource with the given unique name, arguments, and options.
@@ -30,8 +37,8 @@ func NewGroupToken(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.Database == nil {
-		return nil, errors.New("invalid value for required argument 'Database'")
+	if args.Group == nil {
+		return nil, errors.New("invalid value for required argument 'Group'")
 	}
 	secrets := pulumi.AdditionalSecretOutputs([]string{
 		"token",
@@ -70,18 +77,26 @@ func (GroupTokenState) ElementType() reflect.Type {
 }
 
 type groupTokenArgs struct {
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization *GroupTokenAuthorization `pulumi:"authorization"`
-	Database      string                   `pulumi:"database"`
-	Expiration    *string                  `pulumi:"expiration"`
-	ReadAttach    []string                 `pulumi:"readAttach"`
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration *string `pulumi:"expiration"`
+	// The name of the group to create the token for.
+	Group string `pulumi:"group"`
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach []string `pulumi:"readAttach"`
 }
 
 // The set of arguments for constructing a GroupToken resource.
 type GroupTokenArgs struct {
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization GroupTokenAuthorizationPtrInput
-	Database      pulumi.StringInput
-	Expiration    pulumi.StringPtrInput
-	ReadAttach    pulumi.StringArrayInput
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration pulumi.StringPtrInput
+	// The name of the group to create the token for.
+	Group pulumi.StringInput
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach pulumi.StringArrayInput
 }
 
 func (GroupTokenArgs) ElementType() reflect.Type {
@@ -171,26 +186,32 @@ func (o GroupTokenOutput) ToGroupTokenOutputWithContext(ctx context.Context) Gro
 	return o
 }
 
+// The authorization level for the token. Defaults to full-access if not specified.
 func (o GroupTokenOutput) Authorization() GroupTokenAuthorizationPtrOutput {
 	return o.ApplyT(func(v *GroupToken) GroupTokenAuthorizationPtrOutput { return v.Authorization }).(GroupTokenAuthorizationPtrOutput)
 }
 
-func (o GroupTokenOutput) Database() pulumi.StringOutput {
-	return o.ApplyT(func(v *GroupToken) pulumi.StringOutput { return v.Database }).(pulumi.StringOutput)
-}
-
+// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
 func (o GroupTokenOutput) Expiration() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *GroupToken) pulumi.StringPtrOutput { return v.Expiration }).(pulumi.StringPtrOutput)
 }
 
+// The RFC3339 timestamp when the token expires, if an expiration was set.
 func (o GroupTokenOutput) ExpiresAt() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *GroupToken) pulumi.StringPtrOutput { return v.ExpiresAt }).(pulumi.StringPtrOutput)
 }
 
+// The name of the group to create the token for.
+func (o GroupTokenOutput) Group() pulumi.StringOutput {
+	return o.ApplyT(func(v *GroupToken) pulumi.StringOutput { return v.Group }).(pulumi.StringOutput)
+}
+
+// List of databases that can be attached for read operations using this token.
 func (o GroupTokenOutput) ReadAttach() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *GroupToken) pulumi.StringArrayOutput { return v.ReadAttach }).(pulumi.StringArrayOutput)
 }
 
+// The JWT token used to authenticate with databases in the group.
 func (o GroupTokenOutput) Token() pulumi.StringOutput {
 	return o.ApplyT(func(v *GroupToken) pulumi.StringOutput { return v.Token }).(pulumi.StringOutput)
 }

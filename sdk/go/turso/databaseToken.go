@@ -12,15 +12,22 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// An authentication token for a Turso database. Tokens can be used to connect to the database with specific permissions.
 type DatabaseToken struct {
 	pulumi.CustomResourceState
 
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization DatabaseTokenAuthorizationPtrOutput `pulumi:"authorization"`
-	Database      pulumi.StringOutput                 `pulumi:"database"`
-	Expiration    pulumi.StringPtrOutput              `pulumi:"expiration"`
-	ExpiresAt     pulumi.StringPtrOutput              `pulumi:"expiresAt"`
-	ReadAttach    pulumi.StringArrayOutput            `pulumi:"readAttach"`
-	Token         pulumi.StringOutput                 `pulumi:"token"`
+	// The name of the database to create the token for.
+	Database pulumi.StringOutput `pulumi:"database"`
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration pulumi.StringPtrOutput `pulumi:"expiration"`
+	// The RFC3339 timestamp when the token expires, if an expiration was set.
+	ExpiresAt pulumi.StringPtrOutput `pulumi:"expiresAt"`
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach pulumi.StringArrayOutput `pulumi:"readAttach"`
+	// The JWT token used to authenticate with the database.
+	Token pulumi.StringOutput `pulumi:"token"`
 }
 
 // NewDatabaseToken registers a new resource with the given unique name, arguments, and options.
@@ -70,18 +77,26 @@ func (DatabaseTokenState) ElementType() reflect.Type {
 }
 
 type databaseTokenArgs struct {
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization *DatabaseTokenAuthorization `pulumi:"authorization"`
-	Database      string                      `pulumi:"database"`
-	Expiration    *string                     `pulumi:"expiration"`
-	ReadAttach    []string                    `pulumi:"readAttach"`
+	// The name of the database to create the token for.
+	Database string `pulumi:"database"`
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration *string `pulumi:"expiration"`
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach []string `pulumi:"readAttach"`
 }
 
 // The set of arguments for constructing a DatabaseToken resource.
 type DatabaseTokenArgs struct {
+	// The authorization level for the token. Defaults to full-access if not specified.
 	Authorization DatabaseTokenAuthorizationPtrInput
-	Database      pulumi.StringInput
-	Expiration    pulumi.StringPtrInput
-	ReadAttach    pulumi.StringArrayInput
+	// The name of the database to create the token for.
+	Database pulumi.StringInput
+	// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
+	Expiration pulumi.StringPtrInput
+	// List of databases that can be attached for read operations using this token.
+	ReadAttach pulumi.StringArrayInput
 }
 
 func (DatabaseTokenArgs) ElementType() reflect.Type {
@@ -171,26 +186,32 @@ func (o DatabaseTokenOutput) ToDatabaseTokenOutputWithContext(ctx context.Contex
 	return o
 }
 
+// The authorization level for the token. Defaults to full-access if not specified.
 func (o DatabaseTokenOutput) Authorization() DatabaseTokenAuthorizationPtrOutput {
 	return o.ApplyT(func(v *DatabaseToken) DatabaseTokenAuthorizationPtrOutput { return v.Authorization }).(DatabaseTokenAuthorizationPtrOutput)
 }
 
+// The name of the database to create the token for.
 func (o DatabaseTokenOutput) Database() pulumi.StringOutput {
 	return o.ApplyT(func(v *DatabaseToken) pulumi.StringOutput { return v.Database }).(pulumi.StringOutput)
 }
 
+// The duration until the token expires (e.g., '24h', '7d', '30d'). If not specified, the token will not expire.
 func (o DatabaseTokenOutput) Expiration() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *DatabaseToken) pulumi.StringPtrOutput { return v.Expiration }).(pulumi.StringPtrOutput)
 }
 
+// The RFC3339 timestamp when the token expires, if an expiration was set.
 func (o DatabaseTokenOutput) ExpiresAt() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *DatabaseToken) pulumi.StringPtrOutput { return v.ExpiresAt }).(pulumi.StringPtrOutput)
 }
 
+// List of databases that can be attached for read operations using this token.
 func (o DatabaseTokenOutput) ReadAttach() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *DatabaseToken) pulumi.StringArrayOutput { return v.ReadAttach }).(pulumi.StringArrayOutput)
 }
 
+// The JWT token used to authenticate with the database.
 func (o DatabaseTokenOutput) Token() pulumi.StringOutput {
 	return o.ApplyT(func(v *DatabaseToken) pulumi.StringOutput { return v.Token }).(pulumi.StringOutput)
 }

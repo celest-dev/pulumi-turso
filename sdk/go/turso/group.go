@@ -12,14 +12,20 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// A Turso group. Groups are collections of databases that share the same replication configuration and can be managed together.
 type Group struct {
 	pulumi.CustomResourceState
 
-	DeleteProtection pulumi.BoolOutput        `pulumi:"deleteProtection"`
-	Locations        pulumi.StringArrayOutput `pulumi:"locations"`
-	Name             pulumi.StringOutput      `pulumi:"name"`
-	Primary          pulumi.StringOutput      `pulumi:"primary"`
-	Uuid             pulumi.StringOutput      `pulumi:"uuid"`
+	// Whether deletion protection is enabled for this group.
+	DeleteProtection pulumi.BoolOutput `pulumi:"deleteProtection"`
+	// All locations where this group has database instances.
+	Locations pulumi.StringArrayOutput `pulumi:"locations"`
+	// The name of the group.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// The primary location of the group.
+	Primary pulumi.StringOutput `pulumi:"primary"`
+	// The unique identifier of the group.
+	Uuid pulumi.StringOutput `pulumi:"uuid"`
 }
 
 // NewGroup registers a new resource with the given unique name, arguments, and options.
@@ -68,17 +74,25 @@ func (GroupState) ElementType() reflect.Type {
 }
 
 type groupArgs struct {
-	Extensions       []string `pulumi:"extensions"`
-	Name             string   `pulumi:"name"`
-	PrimaryLocation  string   `pulumi:"primaryLocation"`
+	// SQLite extensions to enable for databases in this group. Use 'all' to enable all available extensions, or specify individual extension names.
+	Extensions []string `pulumi:"extensions"`
+	// The name of the group. Must be unique within the organization.
+	Name string `pulumi:"name"`
+	// The primary location (region) for the group. This is where the primary database instance will be created.
+	PrimaryLocation string `pulumi:"primaryLocation"`
+	// Additional locations where database replicas will be created.
 	ReplicaLocations []string `pulumi:"replicaLocations"`
 }
 
 // The set of arguments for constructing a Group resource.
 type GroupArgs struct {
-	Extensions       pulumi.StringArrayInput
-	Name             pulumi.StringInput
-	PrimaryLocation  pulumi.StringInput
+	// SQLite extensions to enable for databases in this group. Use 'all' to enable all available extensions, or specify individual extension names.
+	Extensions pulumi.StringArrayInput
+	// The name of the group. Must be unique within the organization.
+	Name pulumi.StringInput
+	// The primary location (region) for the group. This is where the primary database instance will be created.
+	PrimaryLocation pulumi.StringInput
+	// Additional locations where database replicas will be created.
 	ReplicaLocations pulumi.StringArrayInput
 }
 
@@ -169,22 +183,27 @@ func (o GroupOutput) ToGroupOutputWithContext(ctx context.Context) GroupOutput {
 	return o
 }
 
+// Whether deletion protection is enabled for this group.
 func (o GroupOutput) DeleteProtection() pulumi.BoolOutput {
 	return o.ApplyT(func(v *Group) pulumi.BoolOutput { return v.DeleteProtection }).(pulumi.BoolOutput)
 }
 
+// All locations where this group has database instances.
 func (o GroupOutput) Locations() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Group) pulumi.StringArrayOutput { return v.Locations }).(pulumi.StringArrayOutput)
 }
 
+// The name of the group.
 func (o GroupOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Group) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
+// The primary location of the group.
 func (o GroupOutput) Primary() pulumi.StringOutput {
 	return o.ApplyT(func(v *Group) pulumi.StringOutput { return v.Primary }).(pulumi.StringOutput)
 }
 
+// The unique identifier of the group.
 func (o GroupOutput) Uuid() pulumi.StringOutput {
 	return o.ApplyT(func(v *Group) pulumi.StringOutput { return v.Uuid }).(pulumi.StringOutput)
 }

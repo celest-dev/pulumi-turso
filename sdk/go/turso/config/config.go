@@ -11,9 +11,12 @@ import (
 
 var _ = internal.GetEnvOrDefault
 
+// The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.
 func GetApiToken(ctx *pulumi.Context) string {
 	return config.Get(ctx, "turso:apiToken")
 }
+
+// The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.
 func GetOrganization(ctx *pulumi.Context) string {
 	return config.Get(ctx, "turso:organization")
 }

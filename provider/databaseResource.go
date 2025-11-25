@@ -12,6 +12,12 @@ import (
 
 type Database struct{}
 
+var _ infer.Annotated = (*Database)(nil)
+
+func (d *Database) Annotate(a infer.Annotator) {
+	a.Describe(&d, "A Turso database. Databases are SQLite databases that live in a group and can be replicated across multiple regions.")
+}
+
 type DatabaseArgs struct {
 	Group       string            `pulumi:"group"`
 	Name        string            `pulumi:"name"`
@@ -21,10 +27,29 @@ type DatabaseArgs struct {
 	Seed        *DatabaseSeedArgs `pulumi:"seed,optional"`
 }
 
+var _ infer.Annotated = (*DatabaseArgs)(nil)
+
+func (args *DatabaseArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.Group, "The name of the group where the database belongs. The group must already exist.")
+	a.Describe(&args.Name, "The name of the database. Must be unique within the organization.")
+	a.Describe(&args.BlockReads, "When true, read queries to this database will be blocked.")
+	a.Describe(&args.BlockWrites, "When true, write queries to this database will be blocked.")
+	a.Describe(&args.SizeLimit, "The maximum size of the database in bytes. You can use units like '1gb', '500mb', etc.")
+	a.Describe(&args.Seed, "Configuration for seeding the database from an existing database or dump.")
+}
+
 type DatabaseSeedArgs struct {
 	Type      DatabaseSeedType `pulumi:"type"`
 	Name      *string          `pulumi:"name,optional"`
 	Timestamp *time.Time       `pulumi:"timestamp,optional"`
+}
+
+var _ infer.Annotated = (*DatabaseSeedArgs)(nil)
+
+func (args *DatabaseSeedArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.Type, "The type of seed to use.")
+	a.Describe(&args.Name, "The name of the database to seed from (when type is 'database') or the URL of the dump file (when type is 'dump').")
+	a.Describe(&args.Timestamp, "A specific point in time to seed from. Only applies when seeding from a database.")
 }
 
 type DatabaseSeedType string
@@ -58,12 +83,38 @@ type DatabaseState struct {
 	Instances map[string]DatabaseInstanceState `pulumi:"instances" json:"instances"`
 }
 
+var _ infer.Annotated = (*DatabaseState)(nil)
+
+func (s *DatabaseState) Annotate(a infer.Annotator) {
+	a.Describe(&s.BlockReads, "Whether read queries to this database are blocked.")
+	a.Describe(&s.BlockWrites, "Whether write queries to this database are blocked.")
+	a.Describe(&s.DbId, "The unique identifier of the database.")
+	a.Describe(&s.DeleteProtection, "Whether deletion protection is enabled for this database.")
+	a.Describe(&s.Group, "The name of the group this database belongs to.")
+	a.Describe(&s.Hostname, "The hostname to connect to this database.")
+	a.Describe(&s.Name, "The name of the database.")
+	a.Describe(&s.PrimaryRegion, "The primary region where the database is located.")
+	a.Describe(&s.Regions, "All regions where this database has replicas.")
+	a.Describe(&s.SizeLimit, "The maximum size limit of the database.")
+	a.Describe(&s.Instances, "A map of database instances by region.")
+}
+
 type DatabaseInstanceState struct {
 	Hostname string `pulumi:"hostname" json:"hostname"`
 	Name     string `pulumi:"name" json:"name"`
 	Region   string `pulumi:"region" json:"region"`
 	Type     string `pulumi:"type" json:"type"`
 	UUID     string `pulumi:"uuid" json:"uuid"`
+}
+
+var _ infer.Annotated = (*DatabaseInstanceState)(nil)
+
+func (s *DatabaseInstanceState) Annotate(a infer.Annotator) {
+	a.Describe(&s.Hostname, "The hostname of this database instance.")
+	a.Describe(&s.Name, "The name of this database instance.")
+	a.Describe(&s.Region, "The region where this instance is located.")
+	a.Describe(&s.Type, "The type of instance (primary or replica).")
+	a.Describe(&s.UUID, "The unique identifier of this instance.")
 }
 
 var (

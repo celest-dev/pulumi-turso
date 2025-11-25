@@ -12,20 +12,32 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// A Turso database. Databases are SQLite databases that live in a group and can be replicated across multiple regions.
 type Database struct {
 	pulumi.CustomResourceState
 
-	BlockReads       pulumi.BoolOutput              `pulumi:"blockReads"`
-	BlockWrites      pulumi.BoolOutput              `pulumi:"blockWrites"`
-	DbId             pulumi.StringOutput            `pulumi:"dbId"`
-	DeleteProtection pulumi.BoolOutput              `pulumi:"deleteProtection"`
-	Group            pulumi.StringOutput            `pulumi:"group"`
-	Hostname         pulumi.StringOutput            `pulumi:"hostname"`
-	Instances        DatabaseInstanceStateMapOutput `pulumi:"instances"`
-	Name             pulumi.StringOutput            `pulumi:"name"`
-	PrimaryRegion    pulumi.StringOutput            `pulumi:"primaryRegion"`
-	Regions          pulumi.StringArrayOutput       `pulumi:"regions"`
-	SizeLimit        pulumi.StringOutput            `pulumi:"sizeLimit"`
+	// Whether read queries to this database are blocked.
+	BlockReads pulumi.BoolOutput `pulumi:"blockReads"`
+	// Whether write queries to this database are blocked.
+	BlockWrites pulumi.BoolOutput `pulumi:"blockWrites"`
+	// The unique identifier of the database.
+	DbId pulumi.StringOutput `pulumi:"dbId"`
+	// Whether deletion protection is enabled for this database.
+	DeleteProtection pulumi.BoolOutput `pulumi:"deleteProtection"`
+	// The name of the group this database belongs to.
+	Group pulumi.StringOutput `pulumi:"group"`
+	// The hostname to connect to this database.
+	Hostname pulumi.StringOutput `pulumi:"hostname"`
+	// A map of database instances by region.
+	Instances DatabaseInstanceStateMapOutput `pulumi:"instances"`
+	// The name of the database.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// The primary region where the database is located.
+	PrimaryRegion pulumi.StringOutput `pulumi:"primaryRegion"`
+	// All regions where this database has replicas.
+	Regions pulumi.StringArrayOutput `pulumi:"regions"`
+	// The maximum size limit of the database.
+	SizeLimit pulumi.StringOutput `pulumi:"sizeLimit"`
 }
 
 // NewDatabase registers a new resource with the given unique name, arguments, and options.
@@ -74,22 +86,34 @@ func (DatabaseState) ElementType() reflect.Type {
 }
 
 type databaseArgs struct {
-	BlockReads  *bool             `pulumi:"blockReads"`
-	BlockWrites *bool             `pulumi:"blockWrites"`
-	Group       string            `pulumi:"group"`
-	Name        string            `pulumi:"name"`
-	Seed        *DatabaseSeedArgs `pulumi:"seed"`
-	SizeLimit   *string           `pulumi:"sizeLimit"`
+	// When true, read queries to this database will be blocked.
+	BlockReads *bool `pulumi:"blockReads"`
+	// When true, write queries to this database will be blocked.
+	BlockWrites *bool `pulumi:"blockWrites"`
+	// The name of the group where the database belongs. The group must already exist.
+	Group string `pulumi:"group"`
+	// The name of the database. Must be unique within the organization.
+	Name string `pulumi:"name"`
+	// Configuration for seeding the database from an existing database or dump.
+	Seed *DatabaseSeedArgs `pulumi:"seed"`
+	// The maximum size of the database in bytes. You can use units like '1gb', '500mb', etc.
+	SizeLimit *string `pulumi:"sizeLimit"`
 }
 
 // The set of arguments for constructing a Database resource.
 type DatabaseArgs struct {
-	BlockReads  pulumi.BoolPtrInput
+	// When true, read queries to this database will be blocked.
+	BlockReads pulumi.BoolPtrInput
+	// When true, write queries to this database will be blocked.
 	BlockWrites pulumi.BoolPtrInput
-	Group       pulumi.StringInput
-	Name        pulumi.StringInput
-	Seed        DatabaseSeedArgsPtrInput
-	SizeLimit   pulumi.StringPtrInput
+	// The name of the group where the database belongs. The group must already exist.
+	Group pulumi.StringInput
+	// The name of the database. Must be unique within the organization.
+	Name pulumi.StringInput
+	// Configuration for seeding the database from an existing database or dump.
+	Seed DatabaseSeedArgsPtrInput
+	// The maximum size of the database in bytes. You can use units like '1gb', '500mb', etc.
+	SizeLimit pulumi.StringPtrInput
 }
 
 func (DatabaseArgs) ElementType() reflect.Type {
@@ -179,46 +203,57 @@ func (o DatabaseOutput) ToDatabaseOutputWithContext(ctx context.Context) Databas
 	return o
 }
 
+// Whether read queries to this database are blocked.
 func (o DatabaseOutput) BlockReads() pulumi.BoolOutput {
 	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.BlockReads }).(pulumi.BoolOutput)
 }
 
+// Whether write queries to this database are blocked.
 func (o DatabaseOutput) BlockWrites() pulumi.BoolOutput {
 	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.BlockWrites }).(pulumi.BoolOutput)
 }
 
+// The unique identifier of the database.
 func (o DatabaseOutput) DbId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.DbId }).(pulumi.StringOutput)
 }
 
+// Whether deletion protection is enabled for this database.
 func (o DatabaseOutput) DeleteProtection() pulumi.BoolOutput {
 	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.DeleteProtection }).(pulumi.BoolOutput)
 }
 
+// The name of the group this database belongs to.
 func (o DatabaseOutput) Group() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Group }).(pulumi.StringOutput)
 }
 
+// The hostname to connect to this database.
 func (o DatabaseOutput) Hostname() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Hostname }).(pulumi.StringOutput)
 }
 
+// A map of database instances by region.
 func (o DatabaseOutput) Instances() DatabaseInstanceStateMapOutput {
 	return o.ApplyT(func(v *Database) DatabaseInstanceStateMapOutput { return v.Instances }).(DatabaseInstanceStateMapOutput)
 }
 
+// The name of the database.
 func (o DatabaseOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
+// The primary region where the database is located.
 func (o DatabaseOutput) PrimaryRegion() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.PrimaryRegion }).(pulumi.StringOutput)
 }
 
+// All regions where this database has replicas.
 func (o DatabaseOutput) Regions() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringArrayOutput { return v.Regions }).(pulumi.StringArrayOutput)
 }
 
+// The maximum size limit of the database.
 func (o DatabaseOutput) SizeLimit() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.SizeLimit }).(pulumi.StringOutput)
 }
