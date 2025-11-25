@@ -7,9 +7,10 @@ NODE_MODULE_NAME := @celest-dev/pulumi-turso
 NUGET_PKG_NAME   := Celest.Pulumi.Turso
 
 PROVIDER        := pulumi-resource-${PACK}
-VERSION         ?= $(shell pulumictl get version)
 PROVIDER_PATH   := provider
 VERSION_PATH    := ${PROVIDER_PATH}.Version
+
+SCHEMA_FILE     := provider/cmd/pulumi-resource-turso/schema.json
 
 GOPATH			:= $(shell go env GOPATH)
 
@@ -19,6 +20,12 @@ TESTPARALLELISM := 4
 
 OS    := $(shell uname)
 SHELL := /bin/bash
+
+# Override during CI using `make [TARGET] PROVIDER_VERSION=""` or by setting a PROVIDER_VERSION environment variable
+# Local & branch builds will just use this fixed default version unless specified
+PROVIDER_VERSION ?= 0.0.1-dev
+# Use this normalised version everywhere rather than the raw input to ensure consistency.
+VERSION_GENERIC = $(shell pulumictl convert-version --language generic --version "$(PROVIDER_VERSION)")
 
 openapi::
 	@echo "Generating OpenAPI client"
@@ -32,23 +39,30 @@ ensure::
 	cd sdk && go mod tidy
 	cd tests && go mod tidy
 
-provider::
-	(cd provider && go build -o $(WORKING_DIR)/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" $(PROJECT)/${PROVIDER_PATH}/cmd/$(PROVIDER))
+bin/$(PROVIDER)::
+	cd provider && go build -o $(WORKING_DIR)/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION_GENERIC}" $(PROJECT)/${PROVIDER_PATH}/cmd/$(PROVIDER)
+
+provider:: bin/$(PROVIDER)
 
 provider_debug::
-	(cd provider && go build -o $(WORKING_DIR)/bin/${PROVIDER} -gcflags="all=-N -l" -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" $(PROJECT)/${PROVIDER_PATH}/cmd/$(PROVIDER))
+	cd provider && go build -o $(WORKING_DIR)/bin/${PROVIDER} -gcflags="all=-N -l" -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION_GENERIC}" $(PROJECT)/${PROVIDER_PATH}/cmd/$(PROVIDER)
+
+$(SCHEMA_FILE):: bin/$(PROVIDER)
+	pulumi package get-schema $(WORKING_DIR)/bin/${PROVIDER} | jq 'del(.version)' > $(SCHEMA_FILE)
+
+schema:: $(SCHEMA_FILE)
 
 test_provider::
 	cd tests && go test -short -v -count=1 -cover -timeout 2h -parallel ${TESTPARALLELISM} ./...
 
-go_sdk:: $(WORKING_DIR)/bin/$(PROVIDER)
+go_sdk:: $(SCHEMA_FILE)
 	rm -rf sdk/go
-	pulumi package gen-sdk $(WORKING_DIR)/bin/$(PROVIDER) --language go
+	pulumi package gen-sdk $(SCHEMA_FILE) --language go --version "${VERSION_GENERIC}"
 	cd sdk && go mod tidy
 
-nodejs_sdk:: $(WORKING_DIR)/bin/$(PROVIDER)
+nodejs_sdk:: $(SCHEMA_FILE)
 	rm -rf sdk/nodejs
-	pulumi package gen-sdk $(WORKING_DIR)/bin/$(PROVIDER) --language nodejs
+	pulumi package gen-sdk $(SCHEMA_FILE) --language nodejs --version "${VERSION_GENERIC}"
 
 build_nodejs_sdk:: nodejs_sdk
 	cd ${PACKDIR}/nodejs/ && \
