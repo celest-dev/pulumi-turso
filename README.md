@@ -1,117 +1,294 @@
-# Pulumi Native Provider Boilerplate
+# Pulumi Turso Provider
 
-This repository is a boilerplate showing how to create and locally test a native Pulumi provider.
+A native Pulumi provider for managing [Turso](https://turso.tech/) databases and groups. Turso is a distributed SQLite database platform built on libSQL.
 
-## Authoring a Pulumi Native Provider
+## Features
 
-This boilerplate creates a working Pulumi-owned provider named `xyz`.
-It implements a random number generator that you can [build and test out for yourself](#test-against-the-example) and then replace the Random code with code specific to your provider.
+This provider allows you to manage the following Turso resources:
 
+- **Group** - Database groups with primary and replica locations
+- **Database** - SQLite databases within groups
+- **GroupToken** - Authentication tokens for database groups
+- **DatabaseToken** - Authentication tokens for individual databases
+
+## Installation
+
+### Go SDK
+
+```bash
+go get github.com/celest-dev/pulumi-turso/sdk/go/turso
+```
+
+### Node.js SDK
+
+```bash
+npm install @celest-dev/pulumi-turso
+# or
+yarn add @celest-dev/pulumi-turso
+```
+
+## Configuration
+
+The provider requires the following configuration:
+
+| Name | Description | Environment Variable |
+|------|-------------|---------------------|
+| `organization` | Your Turso organization name (required) | `TURSO_ORGANIZATION` |
+| `apiToken` | Your Turso API token (optional if using Turso CLI auth) | `TURSO_API_TOKEN` |
+
+### Setting Configuration
+
+You can configure the provider using environment variables:
+
+```bash
+export TURSO_ORGANIZATION="your-org"
+export TURSO_API_TOKEN="your-api-token"
+```
+
+Or via Pulumi configuration:
+
+```bash
+pulumi config set turso:organization your-org
+pulumi config set turso:apiToken your-api-token --secret
+```
+
+### Authentication
+
+The provider supports two authentication methods:
+
+1. **API Token**: Set the `TURSO_API_TOKEN` environment variable or configure `apiToken`
+2. **Turso CLI**: If no API token is provided, the provider will use your Turso CLI authentication (run `turso auth login` first)
+
+## Resources
+
+### Group
+
+Creates a database group in a specific location with optional replicas.
+
+#### Properties
+
+| Input | Type | Description |
+|-------|------|-------------|
+| `name` | string | Name of the group |
+| `primaryLocation` | string | Primary location code (e.g., "ord", "fra", "syd") |
+| `replicaLocations` | string[] | Optional list of replica location codes |
+| `extensions` | string | Optional SQLite extensions ("all" or "none") |
+
+| Output | Type | Description |
+|--------|------|-------------|
+| `uuid` | string | Unique identifier of the group |
+| `locations` | string[] | All locations where the group exists |
+| `primary` | string | Primary location of the group |
+
+### Database
+
+Creates a database within a group.
+
+#### Properties
+
+| Input | Type | Description |
+|-------|------|-------------|
+| `name` | string | Name of the database |
+| `group` | string | Name of the group to create the database in |
+| `sizeLimit` | string | Optional size limit (e.g., "500mb") |
+| `blockReads` | bool | Optional flag to block read operations |
+| `blockWrites` | bool | Optional flag to block write operations |
+| `seed` | object | Optional seed configuration for database initialization |
+
+| Output | Type | Description |
+|--------|------|-------------|
+| `dbId` | string | Unique database identifier |
+| `hostname` | string | Database hostname for connections |
+| `instances` | array | List of database instances |
+
+#### Database Seeding
+
+You can seed a new database from an existing database or a dump file:
+
+```yaml
+seed:
+  type: "database"        # or "dump"
+  name: "source-db-name"  # for type: database
+  url: "https://..."      # for type: dump
+  timestamp: "2024-01-01T00:00:00Z"  # optional point-in-time recovery
+```
+
+### GroupToken
+
+Creates an authentication token for a database group.
+
+#### Properties
+
+| Input | Type | Description |
+|-------|------|-------------|
+| `group` | string | Name of the group |
+| `expiration` | string | Optional expiration (e.g., "2w", "30d", "never") |
+| `authorization` | string | Authorization level: "full-access" or "read-only" |
+
+| Output | Type | Description |
+|--------|------|-------------|
+| `token` | string (secret) | The generated JWT token |
+| `expiresAt` | string | Token expiration timestamp |
+
+### DatabaseToken
+
+Creates an authentication token for a specific database.
+
+#### Properties
+
+| Input | Type | Description |
+|-------|------|-------------|
+| `database` | string | Name of the database |
+| `expiration` | string | Optional expiration (e.g., "2w", "30d", "never") |
+| `authorization` | string | Authorization level: "full-access" or "read-only" |
+
+| Output | Type | Description |
+|--------|------|-------------|
+| `token` | string (secret) | The generated JWT token |
+| `expiresAt` | string | Token expiration timestamp |
+
+## Examples
+
+### Go
+
+```go
+package main
+
+import (
+	"github.com/celest-dev/pulumi-turso/sdk/go/turso"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+)
+
+func main() {
+	pulumi.Run(func(ctx *pulumi.Context) error {
+		// Create a database group
+		group, err := turso.NewGroup(ctx, "my-group", &turso.GroupArgs{
+			Name:            pulumi.String("my-group"),
+			PrimaryLocation: pulumi.String("ord"),
+		})
+		if err != nil {
+			return err
+		}
+
+		// Create a database in the group
+		db, err := turso.NewDatabase(ctx, "my-db", &turso.DatabaseArgs{
+			Name:  pulumi.String("my-db"),
+			Group: group.Name,
+		})
+		if err != nil {
+			return err
+		}
+
+		// Create a read-only token for the database
+		token, err := turso.NewDatabaseToken(ctx, "my-db-token", &turso.DatabaseTokenArgs{
+			Database:      db.Name,
+			Expiration:    pulumi.String("2w"),
+			Authorization: turso.DatabaseTokenAuthorization_Read_Only,
+		})
+		if err != nil {
+			return err
+		}
+
+		// Export outputs
+		ctx.Export("hostname", db.Hostname)
+		ctx.Export("token", token.Token)
+
+		return nil
+	})
+}
+```
+
+### Node.js / TypeScript
+
+```typescript
+import * as pulumi from "@pulumi/pulumi";
+import * as turso from "@celest-dev/pulumi-turso";
+
+// Create a database group
+const group = new turso.Group("my-group", {
+    name: "my-group",
+    primaryLocation: "ord",
+});
+
+// Create a database in the group
+const db = new turso.Database("my-db", {
+    name: "my-db",
+    group: group.name,
+});
+
+// Create a read-only token for the database
+const token = new turso.DatabaseToken("my-db-token", {
+    database: db.name,
+    expiration: "2w",
+    authorization: "read-only",
+});
+
+// Export outputs
+export const hostname = db.hostname;
+export const dbToken = token.token;
+```
+
+### YAML
+
+```yaml
+name: turso-example
+runtime: yaml
+resources:
+  my-group:
+    type: turso:Group
+    properties:
+      name: my-group
+      primaryLocation: ord
+  my-db:
+    type: turso:Database
+    properties:
+      name: my-db
+      group: ${my-group.name}
+  my-db-token:
+    type: turso:DatabaseToken
+    properties:
+      database: ${my-db.name}
+      expiration: 2w
+      authorization: read-only
+outputs:
+  hostname: ${my-db.hostname}
+  token: ${my-db-token.token}
+```
+
+## Development
 
 ### Prerequisites
 
-Prerequisites for this repository are already satisfied by the [Pulumi Devcontainer](https://github.com/pulumi/devcontainer) if you are using Github Codespaces, or VSCode.
+- [Go 1.24+](https://golang.org/dl/)
+- [Pulumi CLI](https://www.pulumi.com/docs/get-started/install/)
+- [Node.js 20+](https://nodejs.org/) (for Node.js SDK)
 
-If you are not using VSCode, you will need to ensure the following tools are installed and present in your `$PATH`:
+### Building
 
-* [`pulumictl`](https://github.com/pulumi/pulumictl#installation)
-* [Go 1.21](https://golang.org/dl/) or 1.latest
-* [NodeJS](https://nodejs.org/en/) 14.x.  We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage NodeJS installations.
-* [Yarn](https://yarnpkg.com/)
-* [TypeScript](https://www.typescriptlang.org/)
-* [Python](https://www.python.org/downloads/) (called as `python3`).  For recent versions of MacOS, the system-installed version is fine.
-* [.NET](https://dotnet.microsoft.com/download)
-
-
-### Build & test the boilerplate XYZ provider
-
-1. Create a new Github CodeSpaces environment using this repository.
-1. Open a terminal in the CodeSpaces environment.
-1. Run `make build install` to build and install the provider.
-1. Run `make gen_examples` to generate the example programs in `examples/` off of the source `examples/yaml` example program.
-1. Run `make up` to run the example program in `examples/yaml`.
-1. Run `make down` to tear down the example program.
-
-### Creating a new provider repository
-
-Pulumi offers this repository as a [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) for convenience.  From this repository:
-
-1. Click "Use this template".
-1. Set the following options:
-   * Owner: pulumi 
-   * Repository name: pulumi-xyz-native (replace "xyz" with the name of your provider)
-   * Description: Pulumi provider for xyz
-   * Repository type: Public
-1. Clone the generated repository.
-
-From the templated repository:
-
-1. Run the following command to update files to use the name of your provider (third-party: use your GitHub organization/username):
-
-    ```bash
-    make prepare NAME=foo REPOSITORY=github.com/pulumi/pulumi-foo ORG=myorg
-    ```
-
-   This will do the following:
-   - rename folders in `provider/cmd` to `pulumi-resource-{NAME}`
-   - replace dependencies in `provider/go.mod` to reflect your repository name
-   - find and replace all instances of the boilerplate `xyz` with the `NAME` of your provider.
-   - find and replace all instances of the boilerplate `abc` with the `ORG` of your provider.
-   - replace all instances of the `github.com/pulumi/pulumi-xyz` repository with the `REPOSITORY` location
-
-#### Build the provider and install the plugin
-
-   ```bash
-   $ make build install
-   ```
-   
-This will:
-
-1. Create the SDK codegen binary and place it in a `./bin` folder (gitignored)
-2. Create the provider binary and place it in the `./bin` folder (gitignored)
-3. Generate the dotnet, Go, Node, and Python SDKs and place them in the `./sdk` folder
-4. Install the provider on your machine.
-
-#### Test against the example
-   
 ```bash
-$ cd examples/simple
-$ yarn link @pulumi/xyz
-$ yarn install
-$ pulumi stack init test
-$ pulumi up
+# Build the provider and SDKs
+make build
+
+# Install the provider locally
+make install
+
+# Run tests
+make test
 ```
 
-Now that you have completed all of the above steps, you have a working provider that generates a random string for you.
+### Running Examples
 
-#### A brief repository overview
+```bash
+# Run the YAML example
+cd examples/yaml
+pulumi up
 
-You now have:
+# Run the Go example
+cd examples/go
+go mod tidy
+pulumi up
+```
 
-1. A `provider/` folder containing the building and implementation logic
-    1. `cmd/pulumi-resource-xyz/main.go` - holds the provider's sample implementation logic.
-2. `deployment-templates` - a set of files to help you around deployment and publication
-3. `sdk` - holds the generated code libraries created by `pulumi-gen-xyz/main.go`
-4. `examples` a folder of Pulumi programs to try locally and/or use in CI.
-5. A `Makefile` and this `README`.
+## License
 
-#### Additional Details
-
-This repository depends on the pulumi-go-provider library. For more details on building providers, please check
-the [Pulumi Go Provider docs](https://github.com/pulumi/pulumi-go-provider).
-
-### Build Examples
-
-Create an example program using the resources defined in your provider, and place it in the `examples/` folder.
-
-You can now repeat the steps for [build, install, and test](#test-against-the-example).
-
-## Configuring CI and releases
-
-1. Follow the instructions laid out in the [deployment templates](./deployment-templates/README-DEPLOYMENT.md).
-
-## References
-
-Other resources/examples for implementing providers:
-* [Pulumi Command provider](https://github.com/pulumi/pulumi-command/blob/master/provider/pkg/provider/provider.go)
-* [Pulumi Go Provider repository](https://github.com/pulumi/pulumi-go-provider)
+Apache 2.0 - See [LICENSE](./LICENSE) for details.
