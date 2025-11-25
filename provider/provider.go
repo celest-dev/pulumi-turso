@@ -30,6 +30,7 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	goGen "github.com/pulumi/pulumi/pkg/v3/codegen/go"
+	nodejsGen "github.com/pulumi/pulumi/pkg/v3/codegen/nodejs"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"golang.org/x/oauth2"
 )
@@ -52,6 +53,9 @@ func Provider() p.Provider {
 			"go": goGen.GoPackageInfo{
 				GenerateResourceContainerTypes: true,
 				ImportBasePath:                 "github.com/celest-dev/pulumi-turso/sdk/go/turso",
+			},
+			"nodejs": nodejsGen.NodePackageInfo{
+				PackageName: "@celest-dev/pulumi-turso",
 			},
 		}).
 		WithNamespace("celest-dev").

@@ -24,15 +24,25 @@ jobs:
             examples/go/*.sum
             provider/*.sum
             sdk/*.sum
-      - name: Build
-        id: build
+      - name: Install Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: '20'
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Build Provider
+        run: make provider
+      - name: Build Go SDK
+        run: make go_sdk
+      - name: Build Node.js SDK
+        run: make nodejs_sdk
+      - name: Build Node.js SDK (compile TypeScript)
         run: |
-          make build
-      - name: Install
-        id: install
-        run: |
-          set -ex
-          make install
+          cd sdk/nodejs
+          yarn install
+          yarn run tsc
+      - name: Install Provider
+        run: make install
       - name: PulumiUp
         id: up
         run: make up

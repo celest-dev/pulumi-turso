@@ -1,0 +1,30 @@
+{
+    "name": "@celest-dev/pulumi-turso",
+    "version": "${VERSION}",
+    "keywords": [
+        "pulumi",
+        "turso",
+        "database",
+        "sqlite",
+        "sqlite3",
+        "libsql",
+        "kind/native"
+    ],
+    "homepage": "https://github.com/celest-dev/pulumi-turso",
+    "license": "Apache-2.0",
+    "scripts": {
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.142.0"
+    },
+    "devDependencies": {
+        "@types/node": "^18",
+        "typescript": "^4.3.5"
+    },
+    "pulumi": {
+        "resource": true,
+        "name": "turso",
+        "server": "github://api.github.com/celest-dev/pulumi-turso"
+    }
+}
