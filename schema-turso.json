@@ -1,7 +1,7 @@
 {
   "name": "turso",
   "displayName": "Turso",
-  "version": "0.1.6-alpha.1764054152+e7937c1c.dirty",
+  "version": "0.2.0",
   "description": "A Pulumi package for creating and managing Turso resources.",
   "keywords": [
     "pulumi",
@@ -24,6 +24,9 @@
     "go": {
       "generateResourceContainerTypes": true,
       "importBasePath": "github.com/celest-dev/pulumi-turso/sdk/go/turso"
+    },
+    "nodejs": {
+      "packageName": "@celest-dev/pulumi-turso"
     }
   },
   "config": {
