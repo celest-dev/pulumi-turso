@@ -15,22 +15,17 @@ import (
 type Database struct {
 	pulumi.CustomResourceState
 
-	AllowAttach   pulumi.BoolOutput              `pulumi:"allowAttach"`
-	Archived      pulumi.BoolOutput              `pulumi:"archived"`
-	BlockReads    pulumi.BoolOutput              `pulumi:"blockReads"`
-	BlockWrites   pulumi.BoolOutput              `pulumi:"blockWrites"`
-	DbId          pulumi.StringOutput            `pulumi:"dbId"`
-	Group         pulumi.StringOutput            `pulumi:"group"`
-	Hostname      pulumi.StringOutput            `pulumi:"hostname"`
-	Instances     DatabaseInstanceStateMapOutput `pulumi:"instances"`
-	IsSchema      pulumi.BoolOutput              `pulumi:"isSchema"`
-	Name          pulumi.StringOutput            `pulumi:"name"`
-	PrimaryRegion pulumi.StringOutput            `pulumi:"primaryRegion"`
-	Regions       pulumi.StringArrayOutput       `pulumi:"regions"`
-	Schema        pulumi.StringOutput            `pulumi:"schema"`
-	SizeLimit     pulumi.StringOutput            `pulumi:"sizeLimit"`
-	Type          pulumi.StringOutput            `pulumi:"type"`
-	Version       pulumi.StringOutput            `pulumi:"version"`
+	BlockReads       pulumi.BoolOutput              `pulumi:"blockReads"`
+	BlockWrites      pulumi.BoolOutput              `pulumi:"blockWrites"`
+	DbId             pulumi.StringOutput            `pulumi:"dbId"`
+	DeleteProtection pulumi.BoolOutput              `pulumi:"deleteProtection"`
+	Group            pulumi.StringOutput            `pulumi:"group"`
+	Hostname         pulumi.StringOutput            `pulumi:"hostname"`
+	Instances        DatabaseInstanceStateMapOutput `pulumi:"instances"`
+	Name             pulumi.StringOutput            `pulumi:"name"`
+	PrimaryRegion    pulumi.StringOutput            `pulumi:"primaryRegion"`
+	Regions          pulumi.StringArrayOutput       `pulumi:"regions"`
+	SizeLimit        pulumi.StringOutput            `pulumi:"sizeLimit"`
 }
 
 // NewDatabase registers a new resource with the given unique name, arguments, and options.
@@ -79,26 +74,20 @@ func (DatabaseState) ElementType() reflect.Type {
 }
 
 type databaseArgs struct {
-	AllowAttach *bool             `pulumi:"allowAttach"`
 	BlockReads  *bool             `pulumi:"blockReads"`
 	BlockWrites *bool             `pulumi:"blockWrites"`
 	Group       string            `pulumi:"group"`
-	IsSchema    *bool             `pulumi:"isSchema"`
 	Name        string            `pulumi:"name"`
-	Schema      *string           `pulumi:"schema"`
 	Seed        *DatabaseSeedArgs `pulumi:"seed"`
 	SizeLimit   *string           `pulumi:"sizeLimit"`
 }
 
 // The set of arguments for constructing a Database resource.
 type DatabaseArgs struct {
-	AllowAttach pulumi.BoolPtrInput
 	BlockReads  pulumi.BoolPtrInput
 	BlockWrites pulumi.BoolPtrInput
 	Group       pulumi.StringInput
-	IsSchema    pulumi.BoolPtrInput
 	Name        pulumi.StringInput
-	Schema      pulumi.StringPtrInput
 	Seed        DatabaseSeedArgsPtrInput
 	SizeLimit   pulumi.StringPtrInput
 }
@@ -190,14 +179,6 @@ func (o DatabaseOutput) ToDatabaseOutputWithContext(ctx context.Context) Databas
 	return o
 }
 
-func (o DatabaseOutput) AllowAttach() pulumi.BoolOutput {
-	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.AllowAttach }).(pulumi.BoolOutput)
-}
-
-func (o DatabaseOutput) Archived() pulumi.BoolOutput {
-	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.Archived }).(pulumi.BoolOutput)
-}
-
 func (o DatabaseOutput) BlockReads() pulumi.BoolOutput {
 	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.BlockReads }).(pulumi.BoolOutput)
 }
@@ -208,6 +189,10 @@ func (o DatabaseOutput) BlockWrites() pulumi.BoolOutput {
 
 func (o DatabaseOutput) DbId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.DbId }).(pulumi.StringOutput)
+}
+
+func (o DatabaseOutput) DeleteProtection() pulumi.BoolOutput {
+	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.DeleteProtection }).(pulumi.BoolOutput)
 }
 
 func (o DatabaseOutput) Group() pulumi.StringOutput {
@@ -222,10 +207,6 @@ func (o DatabaseOutput) Instances() DatabaseInstanceStateMapOutput {
 	return o.ApplyT(func(v *Database) DatabaseInstanceStateMapOutput { return v.Instances }).(DatabaseInstanceStateMapOutput)
 }
 
-func (o DatabaseOutput) IsSchema() pulumi.BoolOutput {
-	return o.ApplyT(func(v *Database) pulumi.BoolOutput { return v.IsSchema }).(pulumi.BoolOutput)
-}
-
 func (o DatabaseOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
@@ -238,20 +219,8 @@ func (o DatabaseOutput) Regions() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringArrayOutput { return v.Regions }).(pulumi.StringArrayOutput)
 }
 
-func (o DatabaseOutput) Schema() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Schema }).(pulumi.StringOutput)
-}
-
 func (o DatabaseOutput) SizeLimit() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.SizeLimit }).(pulumi.StringOutput)
-}
-
-func (o DatabaseOutput) Type() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Type }).(pulumi.StringOutput)
-}
-
-func (o DatabaseOutput) Version() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Version }).(pulumi.StringOutput)
 }
 
 type DatabaseArrayOutput struct{ *pulumi.OutputState }

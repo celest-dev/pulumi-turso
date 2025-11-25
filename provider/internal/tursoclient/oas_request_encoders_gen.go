@@ -4,15 +4,11 @@ package tursoclient
 
 import (
 	"bytes"
-	"mime"
-	"mime/multipart"
 	"net/http"
 
-	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
 
 	ht "github.com/ogen-go/ogen/http"
-	"github.com/ogen-go/ogen/uri"
 )
 
 func encodeAddOrganizationMemberRequest(
@@ -139,8 +135,8 @@ func encodeUpdateDatabaseConfigurationRequest(
 	return nil
 }
 
-func encodeUpdateOrganizationRequest(
-	req *UpdateOrganizationReq,
+func encodeUpdateGroupConfigurationRequest(
+	req *GroupConfigurationInput,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -153,23 +149,30 @@ func encodeUpdateOrganizationRequest(
 	return nil
 }
 
-func encodeUploadDatabaseDumpRequest(
-	req *UploadDatabaseDumpReq,
+func encodeUpdateMemberRoleRequest(
+	req *UpdateMemberRoleReq,
 	r *http.Request,
 ) error {
-	const contentType = "multipart/form-data"
-	request := req
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
 
-	q := uri.NewFormEncoder(map[string]string{})
-	body, boundary := ht.CreateMultipartBody(func(w *multipart.Writer) error {
-		if err := request.File.WriteMultipart("file", w); err != nil {
-			return errors.Wrap(err, "write \"file\"")
-		}
-		if err := q.WriteMultipart(w); err != nil {
-			return errors.Wrap(err, "write multipart")
-		}
-		return nil
-	})
-	ht.SetCloserBody(r, body, mime.FormatMediaType(contentType, map[string]string{"boundary": boundary}))
+func encodeUpdateOrganizationRequest(
+	req *UpdateOrganizationReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
 	return nil
 }

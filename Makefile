@@ -24,9 +24,7 @@ openapi::
 	@echo "Generating OpenAPI client"
 	@cd $(TMPDIR); \
 		curl -sLo openapi.json "https://raw.githubusercontent.com/tursodatabase/turso-docs/refs/heads/main/api-reference/openapi.json"; \
-		jq -r '.paths["/v1/organizations/{organizationName}/groups/{groupName}/unarchive"].post.operationId = "unarchiveGroup"' openapi.json > openapi.1.json; \
-		jq -r '.components.schemas.Database.properties.schema |= . + {nullable: true}' openapi.1.json > openapi.2.json; \
-		cp openapi.2.json $(WORKING_DIR)/provider/internal/tursoclient/openapi.json
+		cp openapi.json $(WORKING_DIR)/provider/internal/tursoclient/openapi.json
 	cd $(WORKING_DIR)/provider && go generate ./...
 
 ensure::

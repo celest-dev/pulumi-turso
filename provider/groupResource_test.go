@@ -6,74 +6,88 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
-	provider "github.com/pulumi/pulumi-go-provider"
+	p "github.com/pulumi/pulumi-go-provider"
 	integration "github.com/pulumi/pulumi-go-provider/integration"
 	presource "github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGroupResource(t *testing.T) {
-	server := integration.NewServer("turso", semver.Version{Minor: 1}, Provider())
-	err := server.Configure(provider.ConfigureRequest{})
-	assert.NoError(t, err)
+	t.Parallel()
+
+	server, err := integration.NewServer(t.Context(),
+		"turso",
+		semver.Version{Minor: 1},
+		integration.WithProvider(Provider()),
+	)
+	require.NoError(t, err)
+
+	err = server.Configure(p.ConfigureRequest{})
+	require.NoError(t, err)
 
 	groupName := fmt.Sprintf("test-%d", rand.IntN(100000))
 	integration.LifeCycleTest{
 		Resource: "turso:index:Group",
 		Create: integration.Operation{
-			Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+			Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 				"name":            groupName,
-				"primaryLocation": "sjc",
-			}),
-			Hook: func(inputs, output presource.PropertyMap) {
+				"primaryLocation": "aws-us-east-1",
+			})),
+			Hook: func(inputs, output property.Map) {
 				t.Logf("Outputs: %v", output)
-				name := output["name"].StringValue()
+				name := output.Get("name").AsString()
 				assert.Equal(t, groupName, name)
-				uuid := output["uuid"].StringValue()
+				uuid := output.Get("uuid").AsString()
 				assert.NotEmpty(t, uuid)
-				archived := output["archived"].BoolValue()
-				assert.False(t, archived)
 			},
 		},
 	}.Run(t, server)
 }
 
 func TestGroupResource_ChangeName(t *testing.T) {
-	server := integration.NewServer("turso", semver.Version{Minor: 1}, Provider())
-	err := server.Configure(provider.ConfigureRequest{
-		Args: presource.NewPropertyMapFromMap(map[string]interface{}{
+	t.Parallel()
+
+	server, err := integration.NewServer(t.Context(),
+		"turso",
+		semver.Version{Minor: 1},
+		integration.WithProvider(Provider()),
+	)
+	require.NoError(t, err)
+
+	err = server.Configure(p.ConfigureRequest{
+		Args: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 			"organization": "celest-dev",
-		}),
+		})),
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	groupName := fmt.Sprintf("test-%d", rand.IntN(100000))
 	integration.LifeCycleTest{
 		Resource: "turso:index:Group",
 		Create: integration.Operation{
-			Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+			Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 				"name":            groupName,
-				"primaryLocation": "sjc",
-			}),
-			Hook: func(inputs, output presource.PropertyMap) {
+				"primaryLocation": "aws-us-east-1",
+			})),
+			Hook: func(inputs, output property.Map) {
 				t.Logf("Outputs: %v", output)
-				name := output["name"].StringValue()
+				name := output.Get("name").AsString()
 				assert.Equal(t, groupName, name)
-				uuid := output["uuid"].StringValue()
+				uuid := output.Get("uuid").AsString()
 				assert.NotEmpty(t, uuid)
-				archived := output["archived"].BoolValue()
-				assert.False(t, archived)
 			},
 		},
 		Updates: []integration.Operation{
 			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+				Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 					"name":            groupName + "-updated",
-					"primaryLocation": "sjc",
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
+					"primaryLocation": "aws-us-east-1",
+				})),
+				Hook: func(inputs, output property.Map) {
 					t.Logf("Outputs: %v", output)
-					name := output["name"].StringValue()
+					name := output.Get("name").AsString()
 					assert.Equal(t, groupName+"-updated", name)
 				},
 			},

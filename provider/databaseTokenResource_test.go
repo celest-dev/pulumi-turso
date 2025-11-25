@@ -5,16 +5,26 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/golang-jwt/jwt/v5"
-	provider "github.com/pulumi/pulumi-go-provider"
+	p "github.com/pulumi/pulumi-go-provider"
 	integration "github.com/pulumi/pulumi-go-provider/integration"
 	presource "github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDatabaseTokenResource(t *testing.T) {
-	server := integration.NewServer("turso", semver.Version{Minor: 1}, Provider())
-	err := server.Configure(provider.ConfigureRequest{})
-	assert.NoError(t, err)
+	t.Parallel()
+
+	server, err := integration.NewServer(t.Context(),
+		"turso",
+		semver.Version{Minor: 1},
+		integration.WithProvider(Provider()),
+	)
+	require.NoError(t, err)
+
+	err = server.Configure(p.ConfigureRequest{})
+	require.NoError(t, err)
 
 	jwtParser := jwt.NewParser(jwt.WithoutClaimsValidation())
 
@@ -22,18 +32,18 @@ func TestDatabaseTokenResource(t *testing.T) {
 	integration.LifeCycleTest{
 		Resource: "turso:index:DatabaseToken",
 		Create: integration.Operation{
-			Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+			Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 				"database":      dbName,
 				"authorization": "full-access",
-			}),
-			Hook: func(inputs, output presource.PropertyMap) {
+			})),
+			Hook: func(inputs, output property.Map) {
 				t.Logf("Outputs: %v", output)
-				name := output["database"].StringValue()
+				name := output.Get("database").AsString()
 				assert.Equal(t, dbName, name)
-				exp := output["expiresAt"].StringValue()
+				exp := output.Get("expiresAt").AsString()
 				assert.Empty(t, exp)
 
-				token := output["token"].StringValue()
+				token := output.Get("token").AsString()
 				assert.NotEmpty(t, token)
 				claims := jwt.MapClaims{}
 				_, _, err := jwtParser.ParseUnverified(token, &claims)
@@ -45,17 +55,17 @@ func TestDatabaseTokenResource(t *testing.T) {
 		},
 		Updates: []integration.Operation{
 			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+				Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 					"database":      dbName,
 					"authorization": "full-access",
 					"expiration":    "1h",
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
+				})),
+				Hook: func(inputs, output property.Map) {
 					t.Logf("Outputs: %v", output)
-					exp := output["expiresAt"].StringValue()
+					exp := output.Get("expiresAt").AsString()
 					assert.NotEmpty(t, exp)
 
-					token := output["token"].StringValue()
+					token := output.Get("token").AsString()
 					assert.NotEmpty(t, token)
 					claims := jwt.MapClaims{}
 					_, _, err := jwtParser.ParseUnverified(token, &claims)

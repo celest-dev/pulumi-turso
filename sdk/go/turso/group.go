@@ -15,12 +15,11 @@ import (
 type Group struct {
 	pulumi.CustomResourceState
 
-	Archived  pulumi.BoolOutput        `pulumi:"archived"`
-	Locations pulumi.StringArrayOutput `pulumi:"locations"`
-	Name      pulumi.StringOutput      `pulumi:"name"`
-	Primary   pulumi.StringOutput      `pulumi:"primary"`
-	Uuid      pulumi.StringOutput      `pulumi:"uuid"`
-	Version   pulumi.StringOutput      `pulumi:"version"`
+	DeleteProtection pulumi.BoolOutput        `pulumi:"deleteProtection"`
+	Locations        pulumi.StringArrayOutput `pulumi:"locations"`
+	Name             pulumi.StringOutput      `pulumi:"name"`
+	Primary          pulumi.StringOutput      `pulumi:"primary"`
+	Uuid             pulumi.StringOutput      `pulumi:"uuid"`
 }
 
 // NewGroup registers a new resource with the given unique name, arguments, and options.
@@ -170,8 +169,8 @@ func (o GroupOutput) ToGroupOutputWithContext(ctx context.Context) GroupOutput {
 	return o
 }
 
-func (o GroupOutput) Archived() pulumi.BoolOutput {
-	return o.ApplyT(func(v *Group) pulumi.BoolOutput { return v.Archived }).(pulumi.BoolOutput)
+func (o GroupOutput) DeleteProtection() pulumi.BoolOutput {
+	return o.ApplyT(func(v *Group) pulumi.BoolOutput { return v.DeleteProtection }).(pulumi.BoolOutput)
 }
 
 func (o GroupOutput) Locations() pulumi.StringArrayOutput {
@@ -188,10 +187,6 @@ func (o GroupOutput) Primary() pulumi.StringOutput {
 
 func (o GroupOutput) Uuid() pulumi.StringOutput {
 	return o.ApplyT(func(v *Group) pulumi.StringOutput { return v.Uuid }).(pulumi.StringOutput)
-}
-
-func (o GroupOutput) Version() pulumi.StringOutput {
-	return o.ApplyT(func(v *Group) pulumi.StringOutput { return v.Version }).(pulumi.StringOutput)
 }
 
 type GroupArrayOutput struct{ *pulumi.OutputState }

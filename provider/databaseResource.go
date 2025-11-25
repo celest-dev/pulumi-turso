@@ -15,12 +15,9 @@ type Database struct{}
 type DatabaseArgs struct {
 	Group       string            `pulumi:"group"`
 	Name        string            `pulumi:"name"`
-	AllowAttach *bool             `pulumi:"allowAttach,optional"`
 	BlockReads  *bool             `pulumi:"blockReads,optional"`
 	BlockWrites *bool             `pulumi:"blockWrites,optional"`
 	SizeLimit   *string           `pulumi:"sizeLimit,optional"`
-	IsSchema    *bool             `pulumi:"isSchema,optional"`
-	Schema      *string           `pulumi:"schema,optional"`
 	Seed        *DatabaseSeedArgs `pulumi:"seed,optional"`
 }
 
@@ -28,7 +25,6 @@ type DatabaseSeedArgs struct {
 	Type      DatabaseSeedType `pulumi:"type"`
 	Name      *string          `pulumi:"name,optional"`
 	Timestamp *time.Time       `pulumi:"timestamp,optional"`
-	URL       *string          `pulumi:"url,optional"`
 }
 
 type DatabaseSeedType string
@@ -48,21 +44,16 @@ func (*DatabaseSeedType) Values() []infer.EnumValue[DatabaseSeedType] {
 }
 
 type DatabaseState struct {
-	AllowAttach   bool     `pulumi:"allowAttach" json:"allow_attach"`
-	Archived      bool     `pulumi:"archived" json:"archived"`
-	BlockReads    bool     `pulumi:"blockReads" json:"block_reads"`
-	BlockWrites   bool     `pulumi:"blockWrites" json:"block_writes"`
-	DbId          string   `pulumi:"dbId" json:"db_id"`
-	Group         string   `pulumi:"group" json:"group"`
-	Hostname      string   `pulumi:"hostname" json:"hostname"`
-	IsSchema      bool     `pulumi:"isSchema" json:"is_schema"`
-	Name          string   `pulumi:"name" json:"name"`
-	PrimaryRegion string   `pulumi:"primaryRegion" json:"primary_region"`
-	Regions       []string `pulumi:"regions" json:"regions"`
-	Schema        string   `pulumi:"schema" json:"schema"`
-	SizeLimit     string   `pulumi:"sizeLimit" json:"size_limit"`
-	Type          string   `pulumi:"type" json:"type"`
-	Version       string   `pulumi:"version" json:"version"`
+	BlockReads       bool     `pulumi:"blockReads" json:"block_reads"`
+	BlockWrites      bool     `pulumi:"blockWrites" json:"block_writes"`
+	DbId             string   `pulumi:"dbId" json:"db_id"`
+	DeleteProtection bool     `pulumi:"deleteProtection" json:"delete_protection"`
+	Group            string   `pulumi:"group" json:"group"`
+	Hostname         string   `pulumi:"hostname" json:"hostname"`
+	Name             string   `pulumi:"name" json:"name"`
+	PrimaryRegion    string   `pulumi:"primaryRegion" json:"primary_region"`
+	Regions          []string `pulumi:"regions" json:"regions"`
+	SizeLimit        string   `pulumi:"sizeLimit" json:"size_limit"`
 
 	Instances map[string]DatabaseInstanceState `pulumi:"instances" json:"instances"`
 }
@@ -76,25 +67,27 @@ type DatabaseInstanceState struct {
 }
 
 var (
-	_ infer.CustomCreate[DatabaseArgs, DatabaseState] = Database{}
-	_ infer.CustomRead[DatabaseArgs, DatabaseState]   = Database{}
-	_ infer.CustomUpdate[DatabaseArgs, DatabaseState] = Database{}
-	_ infer.CustomDelete[DatabaseState]               = Database{}
-	_ infer.CustomDiff[DatabaseArgs, DatabaseState]   = Database{}
+	_ infer.CustomCreate[DatabaseArgs, DatabaseState] = (*Database)(nil)
+	_ infer.CustomRead[DatabaseArgs, DatabaseState]   = (*Database)(nil)
+	_ infer.CustomUpdate[DatabaseArgs, DatabaseState] = (*Database)(nil)
+	_ infer.CustomDelete[DatabaseState]               = (*Database)(nil)
+	_ infer.CustomDiff[DatabaseArgs, DatabaseState]   = (*Database)(nil)
 )
 
-func (Database) Create(ctx context.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
-	p.GetLogger(ctx).Infof("creating database %s (preview=%v)", name, preview)
+func (*Database) Create(ctx context.Context, req infer.CreateRequest[DatabaseArgs]) (infer.CreateResponse[DatabaseState], error) {
+	input := req.Inputs
+	preview := req.DryRun
+	p.GetLogger(ctx).Infof("creating database %s (preview=%v)", req.Name, preview)
 	if preview {
-		return input.Name, DatabaseState{
-			Name:        input.Name,
-			Group:       input.Group,
-			AllowAttach: UnwrapOrZero(input.AllowAttach),
-			BlockReads:  UnwrapOrZero(input.BlockReads),
-			BlockWrites: UnwrapOrZero(input.BlockWrites),
-			IsSchema:    UnwrapOrZero(input.IsSchema),
-			Schema:      UnwrapOrZero(input.Schema),
-			SizeLimit:   UnwrapOrZero(input.SizeLimit),
+		return infer.CreateResponse[DatabaseState]{
+			ID: input.Name,
+			Output: DatabaseState{
+				Name:        input.Name,
+				Group:       input.Group,
+				BlockReads:  UnwrapOrZero(input.BlockReads),
+				BlockWrites: UnwrapOrZero(input.BlockWrites),
+				SizeLimit:   UnwrapOrZero(input.SizeLimit),
+			},
 		}, nil
 	}
 
@@ -106,7 +99,6 @@ func (Database) Create(ctx context.Context, name string, input DatabaseArgs, pre
 		dbSeed = tursoclient.NewOptCreateDatabaseInputSeed(tursoclient.CreateDatabaseInputSeed{
 			Type:      tursoclient.NewOptCreateDatabaseInputSeedType(tursoclient.CreateDatabaseInputSeedType(seed.Type)),
 			Name:      optString(seed.Name),
-			URL:       optString(seed.URL),
 			Timestamp: optTime(seed.Timestamp),
 		})
 	}
@@ -116,115 +108,115 @@ func (Database) Create(ctx context.Context, name string, input DatabaseArgs, pre
 		Group:     input.Group,
 		Seed:      dbSeed,
 		SizeLimit: optString(input.SizeLimit),
-		IsSchema:  optBool(input.IsSchema),
-		Schema:    optString(input.Schema),
 	}
 	res, err := client.CreateDatabase(ctx, &createReq, tursoclient.CreateDatabaseParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 	})
 	if err != nil {
-		return "", DatabaseState{}, fmt.Errorf("failed to create database: %w\n%v", err, res)
+		return infer.CreateResponse[DatabaseState]{}, fmt.Errorf("failed to create database: %w\n%v", err, res)
 	}
 	_, ok := res.(*tursoclient.CreateDatabaseOK)
 	if !ok {
-		return "", DatabaseState{}, fmt.Errorf("error creating database. unexpected response from server (%T): %v", res, res)
+		return infer.CreateResponse[DatabaseState]{}, fmt.Errorf("error creating database. unexpected response from server (%T): %v", res, res)
 	}
 
 	updateConfigReq := tursoclient.DatabaseConfigurationInput{
-		AllowAttach: optBool(input.AllowAttach),
 		BlockReads:  optBool(input.BlockReads),
 		BlockWrites: optBool(input.BlockWrites),
 	}
 	_, err = config.client.UpdateDatabaseConfiguration(ctx, &updateConfigReq, tursoclient.UpdateDatabaseConfigurationParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 		DatabaseName:     input.Name,
 	})
 	if err != nil {
-		return "", DatabaseState{}, fmt.Errorf("failed to update database configuration: %w", err)
+		return infer.CreateResponse[DatabaseState]{}, fmt.Errorf("failed to update database configuration: %w", err)
 	}
 
 	state, err := config.readDatabaseResource(ctx, input.Name)
 	if err != nil {
-		return "", DatabaseState{}, fmt.Errorf("failed to read database: %w", err)
+		return infer.CreateResponse[DatabaseState]{}, fmt.Errorf("failed to read database: %w", err)
 	}
 
-	return state.Name, state, nil
+	return infer.CreateResponse[DatabaseState]{ID: state.Name, Output: state}, nil
 }
 
-func (Database) Read(ctx context.Context, id string, inputs DatabaseArgs, state DatabaseState) (canonicalID string, normalizedInputs DatabaseArgs, normalizedState DatabaseState, err error) {
-	p.GetLogger(ctx).Infof("reading database %s", id)
+func (*Database) Read(ctx context.Context, req infer.ReadRequest[DatabaseArgs, DatabaseState]) (infer.ReadResponse[DatabaseArgs, DatabaseState], error) {
+	p.GetLogger(ctx).Infof("reading database %s", req.ID)
 
 	config := infer.GetConfig[Config](ctx)
-	normalizedState, err = config.readDatabaseResource(ctx, id)
+	normalizedState, err := config.readDatabaseResource(ctx, req.ID)
 	if err != nil {
-		return "", DatabaseArgs{}, DatabaseState{}, fmt.Errorf("failed to read database: %w", err)
+		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, fmt.Errorf("failed to read database: %w", err)
 	}
 
-	return id, inputs, normalizedState, nil
+	return infer.ReadResponse[DatabaseArgs, DatabaseState]{
+		ID:     req.ID,
+		Inputs: req.Inputs,
+		State:  normalizedState,
+	}, nil
 }
 
-func (Database) Update(ctx context.Context, id string, olds DatabaseState, news DatabaseArgs, preview bool) (DatabaseState, error) {
-	p.GetLogger(ctx).Infof("updating database %s (preview=%v)", id, preview)
+func (*Database) Update(ctx context.Context, req infer.UpdateRequest[DatabaseArgs, DatabaseState]) (infer.UpdateResponse[DatabaseState], error) {
+	news := req.Inputs
+	preview := req.DryRun
+	p.GetLogger(ctx).Infof("updating database %s (preview=%v)", req.ID, preview)
 
 	if preview {
-		return DatabaseState{
-			Name:        news.Name,
-			Group:       news.Group,
-			AllowAttach: UnwrapOrZero(news.AllowAttach),
-			BlockReads:  UnwrapOrZero(news.BlockReads),
-			BlockWrites: UnwrapOrZero(news.BlockWrites),
-			IsSchema:    UnwrapOrZero(news.IsSchema),
-			Schema:      UnwrapOrZero(news.Schema),
-			SizeLimit:   UnwrapOrZero(news.SizeLimit),
+		return infer.UpdateResponse[DatabaseState]{
+			Output: DatabaseState{
+				Name:        news.Name,
+				Group:       news.Group,
+				BlockReads:  UnwrapOrZero(news.BlockReads),
+				BlockWrites: UnwrapOrZero(news.BlockWrites),
+				SizeLimit:   UnwrapOrZero(news.SizeLimit),
+			},
 		}, nil
 	}
 
 	config := infer.GetConfig[Config](ctx)
 	client := config.client
 	updateReq := tursoclient.DatabaseConfigurationInput{
-		AllowAttach: optBool(news.AllowAttach),
 		BlockReads:  optBool(news.BlockReads),
 		BlockWrites: optBool(news.BlockWrites),
 		SizeLimit:   optString(news.SizeLimit),
 	}
 	_, err := client.UpdateDatabaseConfiguration(ctx, &updateReq, tursoclient.UpdateDatabaseConfigurationParams{
-		OrganizationName: config.OrganizationName,
-		DatabaseName:     id,
+		OrganizationSlug: config.OrganizationSlug,
+		DatabaseName:     req.ID,
 	})
 	if err != nil {
-		return DatabaseState{}, fmt.Errorf("failed to update database: %w", err)
+		return infer.UpdateResponse[DatabaseState]{}, fmt.Errorf("failed to update database: %w", err)
 	}
 
-	state, err := config.readDatabaseResource(ctx, id)
+	state, err := config.readDatabaseResource(ctx, req.ID)
 	if err != nil {
-		return DatabaseState{}, fmt.Errorf("failed to read database: %w", err)
+		return infer.UpdateResponse[DatabaseState]{}, fmt.Errorf("failed to read database: %w", err)
 	}
 
-	return state, nil
+	return infer.UpdateResponse[DatabaseState]{Output: state}, nil
 }
 
-func (Database) Delete(ctx context.Context, id string, props DatabaseState) error {
-	p.GetLogger(ctx).Infof("deleting database %s", id)
+func (*Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseState]) (infer.DeleteResponse, error) {
+	p.GetLogger(ctx).Infof("deleting database %s", req.ID)
 
 	config := infer.GetConfig[Config](ctx)
 	client := config.client
 
 	_, err := client.DeleteDatabase(ctx, tursoclient.DeleteDatabaseParams{
-		OrganizationName: config.OrganizationName,
-		DatabaseName:     id,
+		OrganizationSlug: config.OrganizationSlug,
+		DatabaseName:     req.ID,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete database: %w", err)
+		return infer.DeleteResponse{}, fmt.Errorf("failed to delete database: %w", err)
 	}
 
-	return nil
+	return infer.DeleteResponse{}, nil
 }
 
-func (Database) Diff(ctx context.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
+func (*Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, DatabaseState]) (infer.DiffResponse, error) {
+	olds := req.State
+	news := req.Inputs
 	diff := map[string]p.PropertyDiff{}
-	if olds.AllowAttach != UnwrapOrZero(news.AllowAttach) {
-		diff["allowAttach"] = p.PropertyDiff{Kind: p.Update}
-	}
 	if olds.BlockReads != UnwrapOrZero(news.BlockReads) {
 		diff["blockReads"] = p.PropertyDiff{Kind: p.Update}
 	}
@@ -240,13 +232,7 @@ func (Database) Diff(ctx context.Context, id string, olds DatabaseState, news Da
 	if olds.Name != news.Name {
 		diff["name"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
-	if olds.IsSchema != UnwrapOrZero(news.IsSchema) {
-		diff["isSchema"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if olds.Schema != UnwrapOrZero(news.Schema) {
-		diff["schema"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	return p.DiffResponse{
+	return infer.DiffResponse{
 		DeleteBeforeReplace: true,
 		HasChanges:          len(diff) > 0,
 		DetailedDiff:        diff,
@@ -298,7 +284,7 @@ func (config Config) readDatabaseResource(ctx context.Context, name string) (Dat
 		return DatabaseState{}, err
 	}
 	dbInstances, err := config.client.ListDatabaseInstances(ctx, tursoclient.ListDatabaseInstancesParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 		DatabaseName:     name,
 	})
 	if err != nil {
@@ -317,21 +303,16 @@ func (config Config) readDatabaseResource(ctx context.Context, name string) (Dat
 	}
 
 	return DatabaseState{
-		AllowAttach:   db.AllowAttach.Value,
-		Archived:      db.Archived.Value,
-		BlockReads:    db.BlockReads.Value,
-		BlockWrites:   db.BlockWrites.Value,
-		DbId:          db.DbId.Value,
-		Group:         db.Group.Value,
-		Hostname:      db.Hostname.Value,
-		IsSchema:      db.IsSchema.Value,
-		Name:          db.Name.Value,
-		PrimaryRegion: db.PrimaryRegion.Value,
-		Regions:       db.GetRegions(),
-		Schema:        db.Schema.Value,
-		SizeLimit:     dbConfig.SizeLimit.Value,
-		Type:          db.Type.Value,
-		Version:       db.Version.Value,
+		BlockReads:       db.BlockReads.Value,
+		BlockWrites:      db.BlockWrites.Value,
+		DbId:             db.DbId.Value,
+		DeleteProtection: db.DeleteProtection.Value,
+		Group:            db.Group.Value,
+		Hostname:         db.Hostname.Value,
+		Name:             db.Name.Value,
+		PrimaryRegion:    db.PrimaryRegion.Value,
+		Regions:          db.GetRegions(),
+		SizeLimit:        dbConfig.SizeLimit.Value,
 
 		Instances: instances,
 	}, nil
@@ -339,7 +320,7 @@ func (config Config) readDatabaseResource(ctx context.Context, name string) (Dat
 
 func (config Config) readDatabase(ctx context.Context, name string) (tursoclient.Database, error) {
 	resp, err := config.client.GetDatabase(ctx, tursoclient.GetDatabaseParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 		DatabaseName:     name,
 	})
 	if err != nil {
@@ -356,7 +337,7 @@ func (config Config) readDatabase(ctx context.Context, name string) (tursoclient
 
 func (config Config) readDatabaseConfiguration(ctx context.Context, name string) (*tursoclient.DatabaseConfigurationResponse, error) {
 	resp, err := config.client.GetDatabaseConfiguration(ctx, tursoclient.GetDatabaseConfigurationParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 		DatabaseName:     name,
 	})
 	if err != nil {

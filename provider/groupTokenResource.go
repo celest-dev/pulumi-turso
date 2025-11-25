@@ -38,15 +38,20 @@ type GroupTokenState struct {
 }
 
 var (
-	_ infer.CustomCreate[GroupTokenArgs, GroupTokenState] = GroupToken{}
-	_ infer.CustomRead[GroupTokenArgs, GroupTokenState]   = GroupToken{}
-	_ infer.CustomDiff[GroupTokenArgs, GroupTokenState]   = GroupToken{}
+	_ infer.CustomCreate[GroupTokenArgs, GroupTokenState] = (*GroupToken)(nil)
+	_ infer.CustomRead[GroupTokenArgs, GroupTokenState]   = (*GroupToken)(nil)
+	_ infer.CustomDiff[GroupTokenArgs, GroupTokenState]   = (*GroupToken)(nil)
 )
 
-func (GroupToken) Create(ctx context.Context, name string, input GroupTokenArgs, preview bool) (string, GroupTokenState, error) {
+func (*GroupToken) Create(ctx context.Context, req infer.CreateRequest[GroupTokenArgs]) (infer.CreateResponse[GroupTokenState], error) {
+	input := req.Inputs
+	preview := req.DryRun
 	if preview {
-		return "", GroupTokenState{
-			GroupTokenArgs: input,
+		return infer.CreateResponse[GroupTokenState]{
+			ID: req.Name,
+			Output: GroupTokenState{
+				GroupTokenArgs: input,
+			},
 		}, nil
 	}
 
@@ -58,7 +63,7 @@ func (GroupToken) Create(ctx context.Context, name string, input GroupTokenArgs,
 	if input.Expiration != nil {
 		expirationDuration, err := time.ParseDuration(*input.Expiration)
 		if err != nil {
-			return "", GroupTokenState{}, fmt.Errorf("error parsing expiration duration: %w", err)
+			return infer.CreateResponse[GroupTokenState]{}, fmt.Errorf("error parsing expiration duration: %w", err)
 		}
 		expiration = tursoclient.NewOptString(expirationDuration.String())
 		expiresAt = time.Now().Add(expirationDuration).Format(time.RFC3339)
@@ -77,31 +82,36 @@ func (GroupToken) Create(ctx context.Context, name string, input GroupTokenArgs,
 			}),
 		}),
 		tursoclient.CreateGroupTokenParams{
-			OrganizationName: config.OrganizationName,
+			OrganizationSlug: config.OrganizationSlug,
 			GroupName:        input.Group,
 			Expiration:       expiration,
 			Authorization:    authorization,
 		})
 	if err != nil {
-		return "", GroupTokenState{}, fmt.Errorf("error creating group token: %w", err)
+		return infer.CreateResponse[GroupTokenState]{}, fmt.Errorf("error creating group token: %w", err)
 	}
 	switch token := token.(type) {
 	case *tursoclient.CreateGroupTokenOK:
-		return input.Group, GroupTokenState{
-			GroupTokenArgs: input,
-			ExpiresAt:      expiresAt,
-			Token:          token.Jwt.Value,
+		return infer.CreateResponse[GroupTokenState]{
+			ID: req.Name,
+			Output: GroupTokenState{
+				GroupTokenArgs: input,
+				ExpiresAt:      expiresAt,
+				Token:          token.Jwt.Value,
+			},
 		}, nil
 	default:
-		return "", GroupTokenState{}, fmt.Errorf("unexpected response creating group token: %T", token)
+		return infer.CreateResponse[GroupTokenState]{}, fmt.Errorf("unexpected response creating group token: %T", token)
 	}
 }
 
-func (GroupToken) Read(ctx context.Context, id string, inputs GroupTokenArgs, state GroupTokenState) (canonicalID string, normalizedInputs GroupTokenArgs, normalizedState GroupTokenState, err error) {
-	return id, inputs, state, nil
+func (*GroupToken) Read(ctx context.Context, req infer.ReadRequest[GroupTokenArgs, GroupTokenState]) (infer.ReadResponse[GroupTokenArgs, GroupTokenState], error) {
+	return infer.ReadResponse[GroupTokenArgs, GroupTokenState](req), nil
 }
 
-func (GroupToken) Diff(ctx context.Context, id string, olds GroupTokenState, news GroupTokenArgs) (p.DiffResponse, error) {
+func (*GroupToken) Diff(ctx context.Context, req infer.DiffRequest[GroupTokenArgs, GroupTokenState]) (infer.DiffResponse, error) {
+	olds := req.State
+	news := req.Inputs
 	diff := map[string]p.PropertyDiff{}
 	if olds.Group != news.Group {
 		diff["group"] = p.PropertyDiff{Kind: p.UpdateReplace}
@@ -118,13 +128,13 @@ func (GroupToken) Diff(ctx context.Context, id string, olds GroupTokenState, new
 	if olds.ExpiresAt != "" {
 		oldExp, err := time.Parse(time.RFC3339, olds.ExpiresAt)
 		if err != nil {
-			return p.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
+			return infer.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
 		}
 		if time.Now().After(oldExp) {
 			diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
 		}
 	}
-	return p.DiffResponse{
+	return infer.DiffResponse{
 		DeleteBeforeReplace: false,
 		HasChanges:          len(diff) > 0,
 		DetailedDiff:        diff,

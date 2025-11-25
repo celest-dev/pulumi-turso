@@ -19,28 +19,32 @@ type GroupArgs struct {
 }
 
 type GroupState struct {
-	Archived  bool     `pulumi:"archived" json:"archived"`
-	Locations []string `pulumi:"locations" json:"locations"`
-	Name      string   `pulumi:"name" json:"name"`
-	Primary   string   `pulumi:"primary" json:"primary"`
-	UUID      string   `pulumi:"uuid" json:"uuid"`
-	Version   string   `pulumi:"version" json:"version"`
+	DeleteProtection bool     `pulumi:"deleteProtection" json:"delete_protection"`
+	Locations        []string `pulumi:"locations" json:"locations"`
+	Name             string   `pulumi:"name" json:"name"`
+	Primary          string   `pulumi:"primary" json:"primary"`
+	UUID             string   `pulumi:"uuid" json:"uuid"`
 }
 
 var (
-	_ infer.CustomCreate[GroupArgs, GroupState] = Group{}
-	_ infer.CustomRead[GroupArgs, GroupState]   = Group{}
-	_ infer.CustomUpdate[GroupArgs, GroupState] = Group{}
-	_ infer.CustomDelete[GroupState]            = Group{}
-	_ infer.CustomDiff[GroupArgs, GroupState]   = Group{}
+	_ infer.CustomCreate[GroupArgs, GroupState] = (*Group)(nil)
+	_ infer.CustomRead[GroupArgs, GroupState]   = (*Group)(nil)
+	_ infer.CustomUpdate[GroupArgs, GroupState] = (*Group)(nil)
+	_ infer.CustomDelete[GroupState]            = (*Group)(nil)
+	_ infer.CustomDiff[GroupArgs, GroupState]   = (*Group)(nil)
 )
 
-func (Group) Create(ctx context.Context, name string, input GroupArgs, preview bool) (string, GroupState, error) {
-	p.GetLogger(ctx).Infof("creating group %s (preview=%v)", name, preview)
+func (*Group) Create(ctx context.Context, req infer.CreateRequest[GroupArgs]) (infer.CreateResponse[GroupState], error) {
+	input := req.Inputs
+	preview := req.DryRun
+	p.GetLogger(ctx).Infof("creating group %s (preview=%v)", req.Name, preview)
 
 	if preview {
-		return input.Name, GroupState{
-			Name: input.Name,
+		return infer.CreateResponse[GroupState]{
+			ID: input.Name,
+			Output: GroupState{
+				Name: input.Name,
+			},
 		}, nil
 	}
 
@@ -69,14 +73,14 @@ func (Group) Create(ctx context.Context, name string, input GroupArgs, preview b
 		Extensions: extension,
 	}
 	res, err := client.CreateGroup(ctx, &createReq, tursoclient.CreateGroupParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 	})
 	if err != nil {
-		return "", GroupState{}, fmt.Errorf("failed to create group: %w\n%v", err, res)
+		return infer.CreateResponse[GroupState]{}, fmt.Errorf("failed to create group: %w\n%v", err, res)
 	}
 	_, ok := res.(*tursoclient.CreateGroupOK)
 	if !ok {
-		return "", GroupState{}, fmt.Errorf("failed to create group: unexpected response from server (%T): %v", res, res)
+		return infer.CreateResponse[GroupState]{}, fmt.Errorf("failed to create group: unexpected response from server (%T): %v", res, res)
 	}
 
 	for _, location := range input.ReplicaLocations {
@@ -84,60 +88,66 @@ func (Group) Create(ctx context.Context, name string, input GroupArgs, preview b
 			continue
 		}
 		res, err := client.AddLocationToGroup(ctx, tursoclient.AddLocationToGroupParams{
-			OrganizationName: config.OrganizationName,
+			OrganizationSlug: config.OrganizationSlug,
 			GroupName:        input.Name,
 			Location:         location,
 		})
 		if err != nil {
-			return "", GroupState{}, fmt.Errorf("failed to add location to group: %w", err)
+			return infer.CreateResponse[GroupState]{}, fmt.Errorf("failed to add location to group: %w", err)
 		}
 		if _, ok := res.(*tursoclient.AddLocationToGroupOK); !ok {
-			return "", GroupState{}, fmt.Errorf("unexpected response from server (%T): %v", res, res)
+			return infer.CreateResponse[GroupState]{}, fmt.Errorf("unexpected response from server (%T): %v", res, res)
 		}
 	}
 
 	state, err := config.readGroupResource(ctx, input.Name)
 	if err != nil {
-		return "", GroupState{}, fmt.Errorf("failed to read group: %w", err)
+		return infer.CreateResponse[GroupState]{}, fmt.Errorf("failed to read group: %w", err)
 	}
 
-	return state.Name, state, nil
+	return infer.CreateResponse[GroupState]{ID: state.Name, Output: state}, nil
 }
 
-func (Group) Read(ctx context.Context, id string, inputs GroupArgs, state GroupState) (canonicalID string, normalizedInputs GroupArgs, normalizedState GroupState, err error) {
-	p.GetLogger(ctx).Infof("reading group %s", id)
+func (*Group) Read(ctx context.Context, req infer.ReadRequest[GroupArgs, GroupState]) (infer.ReadResponse[GroupArgs, GroupState], error) {
+	p.GetLogger(ctx).Infof("reading group %s", req.ID)
 
 	config := infer.GetConfig[Config](ctx)
-	normalizedState, err = config.readGroupResource(ctx, id)
+	normalizedState, err := config.readGroupResource(ctx, req.ID)
 	if err != nil {
-		return "", GroupArgs{}, GroupState{}, fmt.Errorf("failed to read group: %w", err)
+		return infer.ReadResponse[GroupArgs, GroupState]{}, fmt.Errorf("failed to read group: %w", err)
 	}
 
-	return id, inputs, normalizedState, nil
+	return infer.ReadResponse[GroupArgs, GroupState]{
+		ID:     req.ID,
+		Inputs: req.Inputs,
+		State:  normalizedState,
+	}, nil
 }
 
-func (Group) Update(ctx context.Context, id string, olds GroupState, news GroupArgs, preview bool) (GroupState, error) {
+func (*Group) Update(ctx context.Context, req infer.UpdateRequest[GroupArgs, GroupState]) (infer.UpdateResponse[GroupState], error) {
 	panic("updating groups is not supported")
 }
 
-func (Group) Delete(ctx context.Context, id string, props GroupState) error {
-	p.GetLogger(ctx).Infof("deleting group %s", id)
+func (*Group) Delete(ctx context.Context, req infer.DeleteRequest[GroupState]) (infer.DeleteResponse, error) {
+	p.GetLogger(ctx).Infof("deleting group %s", req.ID)
 
 	config := infer.GetConfig[Config](ctx)
 	client := config.client
 
 	_, err := client.DeleteGroup(ctx, tursoclient.DeleteGroupParams{
-		OrganizationName: config.OrganizationName,
-		GroupName:        id,
+		OrganizationSlug: config.OrganizationSlug,
+		GroupName:        req.ID,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete group: %w", err)
+		return infer.DeleteResponse{}, fmt.Errorf("failed to delete group: %w", err)
 	}
 
-	return nil
+	return infer.DeleteResponse{}, nil
 }
 
-func (Group) Diff(ctx context.Context, id string, olds GroupState, news GroupArgs) (p.DiffResponse, error) {
+func (*Group) Diff(ctx context.Context, req infer.DiffRequest[GroupArgs, GroupState]) (infer.DiffResponse, error) {
+	olds := req.State
+	news := req.Inputs
 	diff := map[string]p.PropertyDiff{}
 	deleteBeforeReplace := false
 	if olds.Name != news.Name {
@@ -147,7 +157,7 @@ func (Group) Diff(ctx context.Context, id string, olds GroupState, news GroupArg
 		diff["primaryLocation"] = p.PropertyDiff{Kind: p.UpdateReplace}
 		deleteBeforeReplace = true
 	}
-	return p.DiffResponse{
+	return infer.DiffResponse{
 		DeleteBeforeReplace: deleteBeforeReplace,
 		HasChanges:          len(diff) > 0,
 		DetailedDiff:        diff,
@@ -161,18 +171,17 @@ func (config Config) readGroupResource(ctx context.Context, name string) (GroupS
 	}
 
 	return GroupState{
-		Archived:  db.Archived.Value,
-		Name:      db.Name.Value,
-		Locations: db.GetLocations(),
-		Primary:   db.Primary.Value,
-		UUID:      db.UUID.Value,
-		Version:   db.Version.Value,
+		DeleteProtection: db.DeleteProtection.Value,
+		Name:             db.Name.Value,
+		Locations:        db.GetLocations(),
+		Primary:          db.Primary.Value,
+		UUID:             db.UUID.Value,
 	}, nil
 }
 
 func (config Config) readGroup(ctx context.Context, name string) (tursoclient.Group, error) {
 	resp, err := config.client.GetGroup(ctx, tursoclient.GetGroupParams{
-		OrganizationName: config.OrganizationName,
+		OrganizationSlug: config.OrganizationSlug,
 		GroupName:        name,
 	})
 	if err != nil {

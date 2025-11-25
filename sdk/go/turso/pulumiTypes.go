@@ -80,7 +80,6 @@ type DatabaseSeedArgs struct {
 	Name      *string          `pulumi:"name"`
 	Timestamp *time.Time       `pulumi:"timestamp"`
 	Type      DatabaseSeedType `pulumi:"type"`
-	Url       *string          `pulumi:"url"`
 }
 
 // DatabaseSeedArgsInput is an input type that accepts DatabaseSeedArgsArgs and DatabaseSeedArgsOutput values.
@@ -98,7 +97,6 @@ type DatabaseSeedArgsArgs struct {
 	Name      pulumi.StringPtrInput `pulumi:"name"`
 	Timestamp time.TimePtrInput     `pulumi:"timestamp"`
 	Type      DatabaseSeedTypeInput `pulumi:"type"`
-	Url       pulumi.StringPtrInput `pulumi:"url"`
 }
 
 func (DatabaseSeedArgsArgs) ElementType() reflect.Type {
@@ -190,10 +188,6 @@ func (o DatabaseSeedArgsOutput) Type() DatabaseSeedTypeOutput {
 	return o.ApplyT(func(v DatabaseSeedArgs) DatabaseSeedType { return v.Type }).(DatabaseSeedTypeOutput)
 }
 
-func (o DatabaseSeedArgsOutput) Url() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v DatabaseSeedArgs) *string { return v.Url }).(pulumi.StringPtrOutput)
-}
-
 type DatabaseSeedArgsPtrOutput struct{ *pulumi.OutputState }
 
 func (DatabaseSeedArgsPtrOutput) ElementType() reflect.Type {
@@ -243,15 +237,6 @@ func (o DatabaseSeedArgsPtrOutput) Type() DatabaseSeedTypePtrOutput {
 		}
 		return &v.Type
 	}).(DatabaseSeedTypePtrOutput)
-}
-
-func (o DatabaseSeedArgsPtrOutput) Url() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *DatabaseSeedArgs) *string {
-		if v == nil {
-			return nil
-		}
-		return v.Url
-	}).(pulumi.StringPtrOutput)
 }
 
 func init() {

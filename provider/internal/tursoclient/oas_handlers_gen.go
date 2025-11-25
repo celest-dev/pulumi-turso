@@ -25,12 +25,12 @@ import (
 //
 // Adds a location to the specified group.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/locations/{location}
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}
 func (s *Server) handleAddLocationToGroupRequest(args [3]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("addLocationToGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/locations/{location}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}"),
 	}
 
 	// Start a span for this request.
@@ -90,9 +90,9 @@ func (s *Server) handleAddLocationToGroupRequest(args [3]string, argsEscaped boo
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -145,12 +145,12 @@ func (s *Server) handleAddLocationToGroupRequest(args [3]string, argsEscaped boo
 //
 // Add an existing Turso user to an organization.
 //
-// POST /v1/organizations/{organizationName}/members
+// POST /v1/organizations/{organizationSlug}/members
 func (s *Server) handleAddOrganizationMemberRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("addOrganizationMember"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/members"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/members"),
 	}
 
 	// Start a span for this request.
@@ -225,9 +225,9 @@ func (s *Server) handleAddOrganizationMemberRequest(args [1]string, argsEscaped 
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -384,12 +384,12 @@ func (s *Server) handleCreateAPITokenRequest(args [1]string, argsEscaped bool, w
 //
 // Creates a new database in a group for the organization or user.
 //
-// POST /v1/organizations/{organizationName}/databases
+// POST /v1/organizations/{organizationSlug}/databases
 func (s *Server) handleCreateDatabaseRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createDatabase"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases"),
 	}
 
 	// Start a span for this request.
@@ -464,9 +464,9 @@ func (s *Server) handleCreateDatabaseRequest(args [1]string, argsEscaped bool, w
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -511,12 +511,12 @@ func (s *Server) handleCreateDatabaseRequest(args [1]string, argsEscaped bool, w
 //
 // Generates an authorization token for the specified database.
 //
-// POST /v1/organizations/{organizationName}/databases/{databaseName}/auth/tokens
+// POST /v1/organizations/{organizationSlug}/databases/{databaseName}/auth/tokens
 func (s *Server) handleCreateDatabaseTokenRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createDatabaseToken"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/auth/tokens"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/auth/tokens"),
 	}
 
 	// Start a span for this request.
@@ -591,9 +591,9 @@ func (s *Server) handleCreateDatabaseTokenRequest(args [2]string, argsEscaped bo
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -650,12 +650,12 @@ func (s *Server) handleCreateDatabaseTokenRequest(args [2]string, argsEscaped bo
 //
 // Creates a new group for the organization or user.
 //
-// POST /v1/organizations/{organizationName}/groups
+// POST /v1/organizations/{organizationSlug}/groups
 func (s *Server) handleCreateGroupRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups"),
 	}
 
 	// Start a span for this request.
@@ -730,9 +730,9 @@ func (s *Server) handleCreateGroupRequest(args [1]string, argsEscaped bool, w ht
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -777,12 +777,12 @@ func (s *Server) handleCreateGroupRequest(args [1]string, argsEscaped bool, w ht
 //
 // Generates an authorization token for the specified group.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/auth/tokens
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/auth/tokens
 func (s *Server) handleCreateGroupTokenRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createGroupToken"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/auth/tokens"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/auth/tokens"),
 	}
 
 	// Start a span for this request.
@@ -857,9 +857,9 @@ func (s *Server) handleCreateGroupTokenRequest(args [2]string, argsEscaped bool,
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -916,12 +916,12 @@ func (s *Server) handleCreateGroupTokenRequest(args [2]string, argsEscaped bool,
 //
 // Delete a database belonging to the organization or user.
 //
-// DELETE /v1/organizations/{organizationName}/databases/{databaseName}
+// DELETE /v1/organizations/{organizationSlug}/databases/{databaseName}
 func (s *Server) handleDeleteDatabaseRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteDatabase"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}"),
 	}
 
 	// Start a span for this request.
@@ -981,9 +981,9 @@ func (s *Server) handleDeleteDatabaseRequest(args [2]string, argsEscaped bool, w
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1032,12 +1032,12 @@ func (s *Server) handleDeleteDatabaseRequest(args [2]string, argsEscaped bool, w
 //
 // Delete a group belonging to the organization or user.
 //
-// DELETE /v1/organizations/{organizationName}/groups/{groupName}
+// DELETE /v1/organizations/{organizationSlug}/groups/{groupName}
 func (s *Server) handleDeleteGroupRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteGroup"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}"),
 	}
 
 	// Start a span for this request.
@@ -1097,9 +1097,9 @@ func (s *Server) handleDeleteGroupRequest(args [2]string, argsEscaped bool, w ht
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -1148,12 +1148,12 @@ func (s *Server) handleDeleteGroupRequest(args [2]string, argsEscaped bool, w ht
 //
 // Delete an invite for the organization by email.
 //
-// DELETE /v1/organizations/{organizationName}/invites/{email}
+// DELETE /v1/organizations/{organizationSlug}/invites/{email}
 func (s *Server) handleDeleteOrganizationInviteByEmailRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deleteOrganizationInviteByEmail"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/invites/{email}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/invites/{email}"),
 	}
 
 	// Start a span for this request.
@@ -1213,9 +1213,9 @@ func (s *Server) handleDeleteOrganizationInviteByEmailRequest(args [2]string, ar
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "email",
 					In:   "path",
@@ -1264,12 +1264,12 @@ func (s *Server) handleDeleteOrganizationInviteByEmailRequest(args [2]string, ar
 //
 // Returns a database belonging to the organization or user.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}
 func (s *Server) handleGetDatabaseRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getDatabase"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}"),
 	}
 
 	// Start a span for this request.
@@ -1329,9 +1329,9 @@ func (s *Server) handleGetDatabaseRequest(args [2]string, argsEscaped bool, w ht
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1380,12 +1380,12 @@ func (s *Server) handleGetDatabaseRequest(args [2]string, argsEscaped bool, w ht
 //
 // Retrieve an individual database configuration belonging to the organization or user.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}/configuration
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}/configuration
 func (s *Server) handleGetDatabaseConfigurationRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getDatabaseConfiguration"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/configuration"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/configuration"),
 	}
 
 	// Start a span for this request.
@@ -1445,9 +1445,9 @@ func (s *Server) handleGetDatabaseConfigurationRequest(args [2]string, argsEscap
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1496,12 +1496,12 @@ func (s *Server) handleGetDatabaseConfigurationRequest(args [2]string, argsEscap
 //
 // Return the individual database instance by name.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}/instances/{instanceName}
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}/instances/{instanceName}
 func (s *Server) handleGetDatabaseInstanceRequest(args [3]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getDatabaseInstance"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/instances/{instanceName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/instances/{instanceName}"),
 	}
 
 	// Start a span for this request.
@@ -1561,9 +1561,9 @@ func (s *Server) handleGetDatabaseInstanceRequest(args [3]string, argsEscaped bo
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1616,12 +1616,12 @@ func (s *Server) handleGetDatabaseInstanceRequest(args [3]string, argsEscaped bo
 //
 // Fetch the top queries of a database, including the count of rows read and written.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}/stats
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}/stats
 func (s *Server) handleGetDatabaseStatsRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getDatabaseStats"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/stats"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/stats"),
 	}
 
 	// Start a span for this request.
@@ -1681,9 +1681,9 @@ func (s *Server) handleGetDatabaseStatsRequest(args [2]string, argsEscaped bool,
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1732,12 +1732,12 @@ func (s *Server) handleGetDatabaseStatsRequest(args [2]string, argsEscaped bool,
 //
 // Fetch activity usage for a database in a given time period.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}/usage
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}/usage
 func (s *Server) handleGetDatabaseUsageRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getDatabaseUsage"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/usage"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/usage"),
 	}
 
 	// Start a span for this request.
@@ -1797,9 +1797,9 @@ func (s *Server) handleGetDatabaseUsageRequest(args [2]string, argsEscaped bool,
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -1856,12 +1856,12 @@ func (s *Server) handleGetDatabaseUsageRequest(args [2]string, argsEscaped bool,
 //
 // Returns a group belonging to the organization or user.
 //
-// GET /v1/organizations/{organizationName}/groups/{groupName}
+// GET /v1/organizations/{organizationSlug}/groups/{groupName}
 func (s *Server) handleGetGroupRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getGroup"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}"),
 	}
 
 	// Start a span for this request.
@@ -1921,9 +1921,9 @@ func (s *Server) handleGetGroupRequest(args [2]string, argsEscaped bool, w http.
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -1968,16 +1968,360 @@ func (s *Server) handleGetGroupRequest(args [2]string, argsEscaped bool, w http.
 	}
 }
 
+// handleGetGroupConfigurationRequest handles getGroupConfiguration operation.
+//
+// Retrieve an individual group configuration belonging to the organization or user.
+//
+// GET /v1/organizations/{organizationSlug}/groups/{groupName}/configuration
+func (s *Server) handleGetGroupConfigurationRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getGroupConfiguration"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/configuration"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetGroupConfiguration",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "GetGroupConfiguration",
+			ID:   "getGroupConfiguration",
+		}
+	)
+	params, err := decodeGetGroupConfigurationParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response *GroupConfigurationResponse
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "GetGroupConfiguration",
+			OperationSummary: "Retrieve Group Configuration",
+			OperationID:      "getGroupConfiguration",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "organizationSlug",
+					In:   "path",
+				}: params.OrganizationSlug,
+				{
+					Name: "groupName",
+					In:   "path",
+				}: params.GroupName,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = GetGroupConfigurationParams
+			Response = *GroupConfigurationResponse
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackGetGroupConfigurationParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetGroupConfiguration(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.GetGroupConfiguration(ctx, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeGetGroupConfigurationResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
+// handleGetOrganizationRequest handles getOrganization operation.
+//
+// Retrieve details of a specific organization.
+//
+// GET /v1/organizations/{organizationSlug}
+func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganization"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetOrganization",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "GetOrganization",
+			ID:   "getOrganization",
+		}
+	)
+	params, err := decodeGetOrganizationParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response GetOrganizationRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "GetOrganization",
+			OperationSummary: "Retrieve Organization",
+			OperationID:      "getOrganization",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "organizationSlug",
+					In:   "path",
+				}: params.OrganizationSlug,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = GetOrganizationParams
+			Response = GetOrganizationRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackGetOrganizationParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetOrganization(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.GetOrganization(ctx, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeGetOrganizationResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
+// handleGetOrganizationMemberRequest handles getOrganizationMember operation.
+//
+// Retrieve details of a specific member in the organization.
+//
+// GET /v1/organizations/{organizationSlug}/members/{username}
+func (s *Server) handleGetOrganizationMemberRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("getOrganizationMember"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/members/{username}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetOrganizationMember",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "GetOrganizationMember",
+			ID:   "getOrganizationMember",
+		}
+	)
+	params, err := decodeGetOrganizationMemberParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response GetOrganizationMemberRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "GetOrganizationMember",
+			OperationSummary: "Retrieve Member",
+			OperationID:      "getOrganizationMember",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "organizationSlug",
+					In:   "path",
+				}: params.OrganizationSlug,
+				{
+					Name: "username",
+					In:   "path",
+				}: params.Username,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = GetOrganizationMemberParams
+			Response = GetOrganizationMemberRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackGetOrganizationMemberParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetOrganizationMember(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.GetOrganizationMember(ctx, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeGetOrganizationMemberResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleGetOrganizationSubscriptionRequest handles getOrganizationSubscription operation.
 //
 // Returns the current subscription details for the organization.
 //
-// GET /v1/organizations/{organizationName}/subscription
+// GET /v1/organizations/{organizationSlug}/subscription
 func (s *Server) handleGetOrganizationSubscriptionRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizationSubscription"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/subscription"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/subscription"),
 	}
 
 	// Start a span for this request.
@@ -2037,9 +2381,9 @@ func (s *Server) handleGetOrganizationSubscriptionRequest(args [1]string, argsEs
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -2084,12 +2428,12 @@ func (s *Server) handleGetOrganizationSubscriptionRequest(args [1]string, argsEs
 //
 // Fetch current billing cycle usage for an organization.
 //
-// GET /v1/organizations/{organizationName}/usage
+// GET /v1/organizations/{organizationSlug}/usage
 func (s *Server) handleGetOrganizationUsageRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizationUsage"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/usage"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/usage"),
 	}
 
 	// Start a span for this request.
@@ -2149,9 +2493,9 @@ func (s *Server) handleGetOrganizationUsageRequest(args [1]string, argsEscaped b
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -2196,12 +2540,12 @@ func (s *Server) handleGetOrganizationUsageRequest(args [1]string, argsEscaped b
 //
 // Invalidates all authorization tokens for the specified database.
 //
-// POST /v1/organizations/{organizationName}/databases/{databaseName}/auth/rotate
+// POST /v1/organizations/{organizationSlug}/databases/{databaseName}/auth/rotate
 func (s *Server) handleInvalidateDatabaseTokensRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("invalidateDatabaseTokens"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/auth/rotate"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/auth/rotate"),
 	}
 
 	// Start a span for this request.
@@ -2261,9 +2605,9 @@ func (s *Server) handleInvalidateDatabaseTokensRequest(args [2]string, argsEscap
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -2312,12 +2656,12 @@ func (s *Server) handleInvalidateDatabaseTokensRequest(args [2]string, argsEscap
 //
 // Invalidates all authorization tokens for the specified group.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/auth/rotate
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/auth/rotate
 func (s *Server) handleInvalidateGroupTokensRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("invalidateGroupTokens"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/auth/rotate"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/auth/rotate"),
 	}
 
 	// Start a span for this request.
@@ -2377,9 +2721,9 @@ func (s *Server) handleInvalidateGroupTokensRequest(args [2]string, argsEscaped 
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -2428,12 +2772,12 @@ func (s *Server) handleInvalidateGroupTokensRequest(args [2]string, argsEscaped 
 //
 // Invite a user (who isn't already a Turso user) to an organization.
 //
-// POST /v1/organizations/{organizationName}/invites
+// POST /v1/organizations/{organizationSlug}/invites
 func (s *Server) handleInviteOrganizationMemberRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("inviteOrganizationMember"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/invites"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/invites"),
 	}
 
 	// Start a span for this request.
@@ -2508,9 +2852,9 @@ func (s *Server) handleInviteOrganizationMemberRequest(args [1]string, argsEscap
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -2649,12 +2993,12 @@ func (s *Server) handleListAPITokensRequest(args [0]string, argsEscaped bool, w 
 // Returns a list of instances of a database. Instances are the individual primary or replica
 // databases in each region defined by the group.
 //
-// GET /v1/organizations/{organizationName}/databases/{databaseName}/instances
+// GET /v1/organizations/{organizationSlug}/databases/{databaseName}/instances
 func (s *Server) handleListDatabaseInstancesRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listDatabaseInstances"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/instances"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/instances"),
 	}
 
 	// Start a span for this request.
@@ -2714,9 +3058,9 @@ func (s *Server) handleListDatabaseInstancesRequest(args [2]string, argsEscaped 
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -2765,12 +3109,12 @@ func (s *Server) handleListDatabaseInstancesRequest(args [2]string, argsEscaped 
 //
 // Returns a list of databases belonging to the organization or user.
 //
-// GET /v1/organizations/{organizationName}/databases
+// GET /v1/organizations/{organizationSlug}/databases
 func (s *Server) handleListDatabasesRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listDatabases"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases"),
 	}
 
 	// Start a span for this request.
@@ -2830,9 +3174,9 @@ func (s *Server) handleListDatabasesRequest(args [1]string, argsEscaped bool, w 
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "group",
 					In:   "query",
@@ -2841,6 +3185,10 @@ func (s *Server) handleListDatabasesRequest(args [1]string, argsEscaped bool, w 
 					Name: "schema",
 					In:   "query",
 				}: params.Schema,
+				{
+					Name: "parent",
+					In:   "query",
+				}: params.Parent,
 			},
 			Raw: r,
 		}
@@ -2885,12 +3233,12 @@ func (s *Server) handleListDatabasesRequest(args [1]string, argsEscaped bool, w 
 //
 // Returns a list of groups belonging to the organization or user.
 //
-// GET /v1/organizations/{organizationName}/groups
+// GET /v1/organizations/{organizationSlug}/groups
 func (s *Server) handleListGroupsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listGroups"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups"),
 	}
 
 	// Start a span for this request.
@@ -2950,9 +3298,9 @@ func (s *Server) handleListGroupsRequest(args [1]string, argsEscaped bool, w htt
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -3091,12 +3439,12 @@ func (s *Server) handleListLocationsRequest(args [0]string, argsEscaped bool, w 
 // Return the audit logs for the given organization, ordered by the `created_at` field in descending
 // order.
 //
-// GET /v1/organizations/{organizationName}/audit-logs
+// GET /v1/organizations/{organizationSlug}/audit-logs
 func (s *Server) handleListOrganizationAuditLogsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listOrganizationAuditLogs"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/audit-logs"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/audit-logs"),
 	}
 
 	// Start a span for this request.
@@ -3156,9 +3504,9 @@ func (s *Server) handleListOrganizationAuditLogsRequest(args [1]string, argsEsca
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "page_size",
 					In:   "query",
@@ -3211,12 +3559,12 @@ func (s *Server) handleListOrganizationAuditLogsRequest(args [1]string, argsEsca
 //
 // Returns a list of invites for the organization.
 //
-// GET /v1/organizations/{organizationName}/invites
+// GET /v1/organizations/{organizationSlug}/invites
 func (s *Server) handleListOrganizationInvitesRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listOrganizationInvites"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/invites"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/invites"),
 	}
 
 	// Start a span for this request.
@@ -3276,9 +3624,9 @@ func (s *Server) handleListOrganizationInvitesRequest(args [1]string, argsEscape
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -3323,12 +3671,12 @@ func (s *Server) handleListOrganizationInvitesRequest(args [1]string, argsEscape
 //
 // Returns a list of invoices for the organization.
 //
-// GET /v1/organizations/{organizationName}/invoices
+// GET /v1/organizations/{organizationSlug}/invoices
 func (s *Server) handleListOrganizationInvoicesRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listOrganizationInvoices"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/invoices"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/invoices"),
 	}
 
 	// Start a span for this request.
@@ -3388,9 +3736,9 @@ func (s *Server) handleListOrganizationInvoicesRequest(args [1]string, argsEscap
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "type",
 					In:   "query",
@@ -3439,12 +3787,12 @@ func (s *Server) handleListOrganizationInvoicesRequest(args [1]string, argsEscap
 //
 // Returns a list of members part of the organization.
 //
-// GET /v1/organizations/{organizationName}/members
+// GET /v1/organizations/{organizationSlug}/members
 func (s *Server) handleListOrganizationMembersRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listOrganizationMembers"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/members"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/members"),
 	}
 
 	// Start a span for this request.
@@ -3504,9 +3852,9 @@ func (s *Server) handleListOrganizationMembersRequest(args [1]string, argsEscape
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -3551,12 +3899,12 @@ func (s *Server) handleListOrganizationMembersRequest(args [1]string, argsEscape
 //
 // Returns a list of available plans and their quotas.
 //
-// GET /v1/organizations/{organizationName}/plans
+// GET /v1/organizations/{organizationSlug}/plans
 func (s *Server) handleListOrganizationPlansRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("listOrganizationPlans"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/plans"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/plans"),
 	}
 
 	// Start a span for this request.
@@ -3616,9 +3964,9 @@ func (s *Server) handleListOrganizationPlansRequest(args [1]string, argsEscaped 
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -3756,12 +4104,12 @@ func (s *Server) handleListOrganizationsRequest(args [0]string, argsEscaped bool
 //
 // Removes a location from the specified group.
 //
-// DELETE /v1/organizations/{organizationName}/groups/{groupName}/locations/{location}
+// DELETE /v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}
 func (s *Server) handleRemoveLocationFromGroupRequest(args [3]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("removeLocationFromGroup"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/locations/{location}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}"),
 	}
 
 	// Start a span for this request.
@@ -3821,9 +4169,9 @@ func (s *Server) handleRemoveLocationFromGroupRequest(args [3]string, argsEscape
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -3876,12 +4224,12 @@ func (s *Server) handleRemoveLocationFromGroupRequest(args [3]string, argsEscape
 //
 // Remove a user from the organization by username.
 //
-// DELETE /v1/organizations/{organizationName}/members/{username}
+// DELETE /v1/organizations/{organizationSlug}/members/{username}
 func (s *Server) handleRemoveOrganizationMemberRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("removeOrganizationMember"),
 		semconv.HTTPRequestMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/members/{username}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/members/{username}"),
 	}
 
 	// Start a span for this request.
@@ -3941,9 +4289,9 @@ func (s *Server) handleRemoveOrganizationMemberRequest(args [2]string, argsEscap
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "username",
 					In:   "path",
@@ -4104,12 +4452,12 @@ func (s *Server) handleRevokeAPITokenRequest(args [1]string, argsEscaped bool, w
 //
 // Transfer a group to another organization that you own or a member of.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/transfer
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/transfer
 func (s *Server) handleTransferGroupRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("transferGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/transfer"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/transfer"),
 	}
 
 	// Start a span for this request.
@@ -4184,9 +4532,9 @@ func (s *Server) handleTransferGroupRequest(args [2]string, argsEscaped bool, w 
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -4235,12 +4583,12 @@ func (s *Server) handleTransferGroupRequest(args [2]string, argsEscaped bool, w 
 //
 // Unarchive a group that has been archived due to inactivity.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/unarchive
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/unarchive
 func (s *Server) handleUnarchiveGroupRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("unarchiveGroup"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/unarchive"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/unarchive"),
 	}
 
 	// Start a span for this request.
@@ -4300,9 +4648,9 @@ func (s *Server) handleUnarchiveGroupRequest(args [2]string, argsEscaped bool, w
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -4351,12 +4699,12 @@ func (s *Server) handleUnarchiveGroupRequest(args [2]string, argsEscaped bool, w
 //
 // Update a database configuration belonging to the organization or user.
 //
-// PATCH /v1/organizations/{organizationName}/databases/{databaseName}/configuration
+// PATCH /v1/organizations/{organizationSlug}/databases/{databaseName}/configuration
 func (s *Server) handleUpdateDatabaseConfigurationRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateDatabaseConfiguration"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/{databaseName}/configuration"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/databases/{databaseName}/configuration"),
 	}
 
 	// Start a span for this request.
@@ -4431,9 +4779,9 @@ func (s *Server) handleUpdateDatabaseConfigurationRequest(args [2]string, argsEs
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "databaseName",
 					In:   "path",
@@ -4478,16 +4826,147 @@ func (s *Server) handleUpdateDatabaseConfigurationRequest(args [2]string, argsEs
 	}
 }
 
+// handleUpdateGroupConfigurationRequest handles updateGroupConfiguration operation.
+//
+// Update a group configuration belonging to the organization or user.
+//
+// PATCH /v1/organizations/{organizationSlug}/groups/{groupName}/configuration
+func (s *Server) handleUpdateGroupConfigurationRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateGroupConfiguration"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/configuration"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdateGroupConfiguration",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "UpdateGroupConfiguration",
+			ID:   "updateGroupConfiguration",
+		}
+	)
+	params, err := decodeUpdateGroupConfigurationParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	request, close, err := s.decodeUpdateGroupConfigurationRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response *GroupConfigurationResponse
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "UpdateGroupConfiguration",
+			OperationSummary: "Update Group Configuration",
+			OperationID:      "updateGroupConfiguration",
+			Body:             request,
+			Params: middleware.Parameters{
+				{
+					Name: "organizationSlug",
+					In:   "path",
+				}: params.OrganizationSlug,
+				{
+					Name: "groupName",
+					In:   "path",
+				}: params.GroupName,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = *GroupConfigurationInput
+			Params   = UpdateGroupConfigurationParams
+			Response = *GroupConfigurationResponse
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackUpdateGroupConfigurationParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.UpdateGroupConfiguration(ctx, request, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.UpdateGroupConfiguration(ctx, request, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeUpdateGroupConfigurationResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleUpdateGroupDatabasesRequest handles updateGroupDatabases operation.
 //
 // Updates all databases in the group to the latest libSQL version.
 //
-// POST /v1/organizations/{organizationName}/groups/{groupName}/update
+// POST /v1/organizations/{organizationSlug}/groups/{groupName}/update
 func (s *Server) handleUpdateGroupDatabasesRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateGroupDatabases"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/groups/{groupName}/update"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/groups/{groupName}/update"),
 	}
 
 	// Start a span for this request.
@@ -4547,9 +5026,9 @@ func (s *Server) handleUpdateGroupDatabasesRequest(args [2]string, argsEscaped b
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 				{
 					Name: "groupName",
 					In:   "path",
@@ -4594,16 +5073,148 @@ func (s *Server) handleUpdateGroupDatabasesRequest(args [2]string, argsEscaped b
 	}
 }
 
+// handleUpdateMemberRoleRequest handles updateMemberRole operation.
+//
+// Update the role of an organization member. Only organization admins or owners can perform this
+// action.
+//
+// PATCH /v1/organizations/{organizationSlug}/members/{username}
+func (s *Server) handleUpdateMemberRoleRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateMemberRole"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}/members/{username}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdateMemberRole",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "UpdateMemberRole",
+			ID:   "updateMemberRole",
+		}
+	)
+	params, err := decodeUpdateMemberRoleParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	request, close, err := s.decodeUpdateMemberRoleRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response UpdateMemberRoleRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "UpdateMemberRole",
+			OperationSummary: "Update Member Role",
+			OperationID:      "updateMemberRole",
+			Body:             request,
+			Params: middleware.Parameters{
+				{
+					Name: "organizationSlug",
+					In:   "path",
+				}: params.OrganizationSlug,
+				{
+					Name: "username",
+					In:   "path",
+				}: params.Username,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = *UpdateMemberRoleReq
+			Params   = UpdateMemberRoleParams
+			Response = UpdateMemberRoleRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackUpdateMemberRoleParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.UpdateMemberRole(ctx, request, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.UpdateMemberRole(ctx, request, params)
+	}
+	if err != nil {
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeUpdateMemberRoleResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleUpdateOrganizationRequest handles updateOrganization operation.
 //
 // Update an organization you own or are a member of.
 //
-// PATCH /v1/organizations/{organizationName}
+// PATCH /v1/organizations/{organizationSlug}
 func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateOrganization"),
 		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}"),
+		semconv.HTTPRouteKey.String("/v1/organizations/{organizationSlug}"),
 	}
 
 	// Start a span for this request.
@@ -4678,9 +5289,9 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 			Body:             request,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationName",
+					Name: "organizationSlug",
 					In:   "path",
-				}: params.OrganizationName,
+				}: params.OrganizationSlug,
 			},
 			Raw: r,
 		}
@@ -4713,134 +5324,6 @@ func (s *Server) handleUpdateOrganizationRequest(args [1]string, argsEscaped boo
 	}
 
 	if err := encodeUpdateOrganizationResponse(response, w, span); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleUploadDatabaseDumpRequest handles uploadDatabaseDump operation.
-//
-// Upload a SQL dump to be used when [creating a new database](/api-reference/databases/create) from
-// seed.
-//
-// POST /v1/organizations/{organizationName}/databases/dumps
-func (s *Server) handleUploadDatabaseDumpRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("uploadDatabaseDump"),
-		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/v1/organizations/{organizationName}/databases/dumps"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "UploadDatabaseDump",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Add Labeler to context.
-	labeler := &Labeler{attrs: otelAttrs}
-	ctx = contextWithLabeler(ctx, labeler)
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		attrOpt := metric.WithAttributeSet(labeler.AttributeSet())
-
-		// Increment request counter.
-		s.requests.Add(ctx, 1, attrOpt)
-
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), attrOpt)
-	}()
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, metric.WithAttributeSet(labeler.AttributeSet()))
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "UploadDatabaseDump",
-			ID:   "uploadDatabaseDump",
-		}
-	)
-	params, err := decodeUploadDatabaseDumpParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	request, close, err := s.decodeUploadDatabaseDumpRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response *UploadDatabaseDumpOK
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    "UploadDatabaseDump",
-			OperationSummary: "Upload SQLite Dump",
-			OperationID:      "uploadDatabaseDump",
-			Body:             request,
-			Params: middleware.Parameters{
-				{
-					Name: "organizationName",
-					In:   "path",
-				}: params.OrganizationName,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = *UploadDatabaseDumpReq
-			Params   = UploadDatabaseDumpParams
-			Response = *UploadDatabaseDumpOK
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackUploadDatabaseDumpParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UploadDatabaseDump(ctx, request, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.UploadDatabaseDump(ctx, request, params)
-	}
-	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeUploadDatabaseDumpResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)

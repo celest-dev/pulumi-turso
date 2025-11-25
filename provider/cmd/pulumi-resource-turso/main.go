@@ -15,10 +15,15 @@
 package main
 
 import (
-	p "github.com/pulumi/pulumi-go-provider"
+	"context"
+	"os"
 
 	provider "github.com/celest-dev/pulumi-turso/provider"
 )
 
 // Serve the provider against Pulumi's Provider protocol.
-func main() { p.RunProvider(provider.Name, provider.Version, provider.Provider()) }
+func main() {
+	if err := provider.Provider().Run(context.Background(), provider.Name, provider.Version); err != nil {
+		os.Exit(1)
+	}
+}

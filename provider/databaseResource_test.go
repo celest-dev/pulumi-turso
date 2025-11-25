@@ -6,89 +6,85 @@ import (
 	"testing"
 
 	"github.com/blang/semver"
-	provider "github.com/pulumi/pulumi-go-provider"
+	p "github.com/pulumi/pulumi-go-provider"
 	integration "github.com/pulumi/pulumi-go-provider/integration"
 	presource "github.com/pulumi/pulumi/sdk/v3/go/common/resource"
+	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDatabaseResource(t *testing.T) {
-	server := integration.NewServer("turso", semver.Version{Minor: 1}, Provider())
-	err := server.Configure(provider.ConfigureRequest{})
-	assert.NoError(t, err)
+	t.Parallel()
+
+	server, err := integration.NewServer(t.Context(),
+		"turso",
+		semver.Version{Minor: 1},
+		integration.WithProvider(Provider()),
+	)
+	require.NoError(t, err)
+
+	err = server.Configure(p.ConfigureRequest{})
+	require.NoError(t, err)
 
 	dbName := fmt.Sprintf("test-%d", rand.IntN(100000))
 	integration.LifeCycleTest{
 		Resource: "turso:index:Database",
 		Create: integration.Operation{
-			Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+			Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 				"name":  dbName,
 				"group": "test",
-			}),
-			Hook: func(inputs, output presource.PropertyMap) {
+			})),
+			Hook: func(inputs, output property.Map) {
 				t.Logf("Outputs: %v", output)
-				name := output["name"].StringValue()
+				name := output.Get("name").AsString()
 				assert.Equal(t, dbName, name)
-				group := output["group"].StringValue()
+				group := output.Get("group").AsString()
 				assert.Equal(t, "test", group)
-				dbId := output["dbId"].StringValue()
+				dbId := output.Get("dbId").AsString()
 				assert.NotEmpty(t, dbId)
-				allowAttach := output["allowAttach"].BoolValue()
-				assert.False(t, allowAttach)
-				blockReads := output["blockReads"].BoolValue()
+				blockReads := output.Get("blockReads").AsBool()
 				assert.False(t, blockReads)
-				blockWrites := output["blockWrites"].BoolValue()
+				blockWrites := output.Get("blockWrites").AsBool()
 				assert.False(t, blockWrites)
-				sizeLimit := output["sizeLimit"].StringValue()
+				sizeLimit := output.Get("sizeLimit").AsString()
 				assert.Empty(t, sizeLimit)
 			},
 		},
 		Updates: []integration.Operation{
 			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
-					"name":        dbName,
-					"group":       "test",
-					"allowAttach": true,
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
-					t.Logf("Outputs: %v", output)
-					allowAttach := output["allowAttach"].BoolValue()
-					assert.True(t, allowAttach)
-				},
-			},
-			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+				Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 					"name":       dbName,
 					"group":      "test",
 					"blockReads": true,
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
+				})),
+				Hook: func(inputs, output property.Map) {
 					t.Logf("Outputs: %v", output)
-					blockReads := output["blockReads"].BoolValue()
+					blockReads := output.Get("blockReads").AsBool()
 					assert.True(t, blockReads)
 				},
 			},
 			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+				Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 					"name":        dbName,
 					"group":       "test",
 					"blockWrites": true,
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
+				})),
+				Hook: func(inputs, output property.Map) {
 					t.Logf("Outputs: %v", output)
-					blockWrites := output["blockWrites"].BoolValue()
+					blockWrites := output.Get("blockWrites").AsBool()
 					assert.True(t, blockWrites)
 				},
 			},
 			{
-				Inputs: presource.NewPropertyMapFromMap(map[string]interface{}{
+				Inputs: presource.FromResourcePropertyMap(presource.NewPropertyMapFromMap(map[string]interface{}{
 					"name":      dbName,
 					"group":     "test",
 					"sizeLimit": "1gb",
-				}),
-				Hook: func(inputs, output presource.PropertyMap) {
+				})),
+				Hook: func(inputs, output property.Map) {
 					t.Logf("Outputs: %v", output)
-					sizeLimit := output["sizeLimit"].StringValue()
+					sizeLimit := output.Get("sizeLimit").AsString()
 					assert.Equal(t, "1gb", sizeLimit)
 				},
 			},
