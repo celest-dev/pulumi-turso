@@ -12,4 +12,3 @@ ci-scripts
 /nuget/
 provider/**/schema-embed.json
 .DS_Store
-schema-turso.json
