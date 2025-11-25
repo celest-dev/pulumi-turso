@@ -46,7 +46,17 @@ go_sdk:: $(WORKING_DIR)/bin/$(PROVIDER)
 	pulumi package gen-sdk $(WORKING_DIR)/bin/$(PROVIDER) --language go
 	cd sdk && go mod tidy
 
-gen_examples: gen_go_example
+nodejs_sdk:: $(WORKING_DIR)/bin/$(PROVIDER)
+	rm -rf sdk/nodejs
+	pulumi package gen-sdk $(WORKING_DIR)/bin/$(PROVIDER) --language nodejs
+
+build_nodejs_sdk:: nodejs_sdk
+	cd ${PACKDIR}/nodejs/ && \
+		yarn install && \
+		yarn run tsc
+	cp README.md LICENSE ${PACKDIR}/nodejs/package.json ${PACKDIR}/nodejs/yarn.lock ${PACKDIR}/nodejs/bin/ 2>/dev/null || true
+
+gen_examples: gen_go_example gen_nodejs_example
 
 gen_%_example:
 	rm -rf ${WORKING_DIR}/examples/$*
@@ -80,7 +90,7 @@ down::
 
 .PHONY: build
 
-build:: provider go_sdk
+build:: provider go_sdk nodejs_sdk
 all:: build
 
 # Required for the codegen action that runs in pulumi/pulumi
@@ -101,3 +111,7 @@ test_all:: test_provider
 
 install_go_sdk::
 	#target intentionally blank
+
+install_nodejs_sdk:: build_nodejs_sdk
+	-yarn unlink --cwd $(WORKING_DIR)/sdk/nodejs/bin
+	yarn link --cwd $(WORKING_DIR)/sdk/nodejs/bin

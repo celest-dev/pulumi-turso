@@ -1,0 +1,6 @@
+name: provider-turso-native
+runtime: nodejs
+plugins:
+  providers:
+    - name: turso
+      path: ../../bin

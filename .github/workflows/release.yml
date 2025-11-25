@@ -42,3 +42,52 @@ jobs:
               ref: 'refs/tags/sdk/${{ github.ref_name }}',
               sha: context.sha
             })
+
+  publish_nodejs_sdk:
+    runs-on: ubuntu-latest
+    needs: publish_binary
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version-file: provider/go.mod
+          cache: true
+          cache-dependency-path: |
+            provider/*.sum
+            sdk/*.sum
+      - name: Install Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Build Provider
+        run: make provider
+      - name: Generate Node.js SDK
+        run: make nodejs_sdk
+      - name: Set SDK version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          cd sdk/nodejs
+          # Update version in package.json
+          jq --arg v "$VERSION" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
+      - name: Build Node.js SDK
+        run: |
+          cd sdk/nodejs
+          yarn install
+          yarn run tsc
+      - name: Prepare package for publishing
+        run: |
+          cd sdk/nodejs
+          # Copy package.json with updated version to bin
+          cp package.json bin/
+          # Copy metadata files
+          cp ../../README.md bin/ 2>/dev/null || true
+          cp ../../LICENSE bin/ 2>/dev/null || true
+          # Copy yarn.lock for reproducible installs
+          cp yarn.lock bin/ 2>/dev/null || true
+      - name: Publish to npm
+        run: |
+          cd sdk/nodejs/bin
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
