@@ -15,9 +15,13 @@
 package provider
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -25,7 +29,6 @@ import (
 	"github.com/celest-dev/pulumi-turso/provider/internal/tursoclient"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
-	"github.com/pulumi/pulumi-go-provider/middleware/schema"
 	goGen "github.com/pulumi/pulumi/pkg/v3/codegen/go"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 	"golang.org/x/oauth2"
@@ -37,42 +40,42 @@ var Version string
 const Name string = "turso"
 
 func Provider() p.Provider {
-	return infer.Provider(infer.Options{
-		Metadata: schema.Metadata{
-			DisplayName: "Turso",
-			Description: "A Pulumi package for creating and managing Turso resources.",
-			Keywords: []string{
-				"pulumi", "turso", "database", "sqlite", "sqlite3", "libsql",
-				"kind/native",
+	prov, err := infer.NewProviderBuilder().
+		WithDisplayName("Turso").
+		WithDescription("A Pulumi package for creating and managing Turso resources.").
+		WithKeywords("pulumi", "turso", "database", "sqlite", "sqlite3", "libsql", "kind/native").
+		WithHomepage("https://github.com/celest-dev/pulumi-turso").
+		WithPublisher("celest-dev").
+		WithLicense("Apache-2.0").
+		WithPluginDownloadURL("github://api.github.com/celest-dev/pulumi-turso").
+		WithLanguageMap(map[string]any{
+			"go": goGen.GoPackageInfo{
+				GenerateResourceContainerTypes: true,
+				ImportBasePath:                 "github.com/celest-dev/pulumi-turso/sdk/go/turso",
 			},
-			Repository:        "https://github.com/celest-dev/pulumi-turso",
-			Publisher:         "celest-dev",
-			License:           "Apache-2.0",
-			PluginDownloadURL: "github://api.github.com/celest-dev/pulumi-turso",
-			LanguageMap: map[string]any{
-				"go": goGen.GoPackageInfo{
-					GenerateResourceContainerTypes: true,
-					ImportBasePath:                 "github.com/celest-dev/pulumi-turso/sdk/go/turso",
-				},
-			},
-		},
-		Resources: []infer.InferredResource{
-			infer.Resource[Database](),
-			infer.Resource[DatabaseToken](),
-			infer.Resource[Group](),
-			infer.Resource[GroupToken](),
-		},
-		Config: infer.Config[*Config](),
-		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
+		}).
+		WithNamespace("celest-dev").
+		WithResources(
+			infer.Resource(&Database{}),
+			infer.Resource(&DatabaseToken{}),
+			infer.Resource(&Group{}),
+			infer.Resource(&GroupToken{}),
+		).
+		WithConfig(infer.Config(&Config{})).
+		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{
 			"provider": "index",
-		},
-	})
+		}).
+		Build()
+	if err != nil {
+		panic(fmt.Errorf("unable to build provider: %w", err))
+	}
+	return prov
 }
 
 // Provider-level configuration for the Turso provider.
 type Config struct {
 	APIToken         *string `pulumi:"apiToken,optional"`
-	OrganizationName string  `pulumi:"organization,optional"`
+	OrganizationSlug string  `pulumi:"organization,optional"`
 
 	client *tursoclient.Client
 }
@@ -98,19 +101,74 @@ func (config *Config) Configure(ctx context.Context) error {
 	if apiToken == "" {
 		return errors.New("API token is required or you must be authenticated with Turso CLI")
 	}
-	if config.OrganizationName != "" {
+	if config.OrganizationSlug != "" {
 		p.GetLogger(ctx).Info("Using organization from configuration")
 	} else if organization := os.Getenv("TURSO_ORGANIZATION"); organization != "" {
 		p.GetLogger(ctx).Info("Using organization from environment")
-		config.OrganizationName = organization
+		config.OrganizationSlug = organization
 	} else {
 		return errors.New("organization name is required")
 	}
+
+	// Create an HTTP client that logs error responses from the Turso API
+	baseTransport := http.DefaultTransport
+	loggingTransport := &errorLoggingTransport{base: baseTransport}
+
+	// Wrap with OAuth2 authentication
 	authClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: apiToken}))
+	authClient.Transport = &oauth2.Transport{
+		Source: oauth2.StaticTokenSource(&oauth2.Token{AccessToken: apiToken}),
+		Base:   loggingTransport,
+	}
+
 	client, err := tursoclient.NewClient("https://api.turso.tech", tursoclient.WithClient(authClient))
 	if err != nil {
 		return fmt.Errorf("failed to create Turso client: %w", err)
 	}
 	config.client = client
 	return nil
+}
+
+// errorLoggingTransport is an http.RoundTripper that logs error responses (4xx/5xx)
+// from the Turso API with full response body details.
+type errorLoggingTransport struct {
+	base http.RoundTripper
+}
+
+func (t *errorLoggingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	resp, err := t.base.RoundTrip(req)
+	if err != nil {
+		return resp, err
+	}
+
+	// Log error responses (4xx and 5xx status codes)
+	if resp.StatusCode >= 400 {
+		// Read the response body
+		body, readErr := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if readErr != nil {
+			// If we can't read the body, log what we can
+			slog.Error("Turso API error",
+				"method", req.Method,
+				"path", req.URL.Path,
+				"status", resp.StatusCode,
+				"error", "failed to read response body",
+				"readError", readErr,
+			)
+		} else {
+			// Log the full error details
+			slog.Error("Turso API error",
+				"method", req.Method,
+				"path", req.URL.Path,
+				"status", resp.StatusCode,
+				"body", string(body),
+			)
+		}
+
+		// Restore the body so it can be read again by the caller
+		resp.Body = io.NopCloser(bytes.NewReader(body))
+	}
+
+	return resp, nil
 }

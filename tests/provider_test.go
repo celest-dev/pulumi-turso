@@ -20,37 +20,16 @@ import (
 	"github.com/blang/semver"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/integration"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	turso "github.com/celest-dev/pulumi-turso/provider"
 )
 
-func TestRandomCreate(t *testing.T) {
-	prov := provider()
-
-	response, err := prov.Create(p.CreateRequest{
-		Urn: urn("Random"),
-		Properties: resource.PropertyMap{
-			"length": resource.NewNumberProperty(12),
-		},
-		Preview: false,
-	})
-
+func TestProviderSchema(t *testing.T) {
+	server, err := integration.NewServer(t.Context(), turso.Name, semver.MustParse("1.0.0"), integration.WithProvider(turso.Provider()))
 	require.NoError(t, err)
-	result := response.Properties["result"].StringValue()
-	assert.Len(t, result, 12)
-}
 
-// urn is a helper function to build an urn for running integration tests.
-func urn(typ string) resource.URN {
-	return resource.NewURN("stack", "proj", "",
-		tokens.Type("test:index:"+typ), "name")
-}
-
-// Create a test server.
-func provider() integration.Server {
-	return integration.NewServer(turso.Name, semver.MustParse("1.0.0"), turso.Provider())
+	schema, err := server.GetSchema(p.GetSchemaRequest{})
+	require.NoError(t, err)
+	require.NotEmpty(t, schema.Schema)
 }

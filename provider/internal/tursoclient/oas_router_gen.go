@@ -199,7 +199,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 
-					// Param: "organizationName"
+					// Param: "organizationSlug"
 					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
 					if idx < 0 {
@@ -210,12 +210,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					if len(elem) == 0 {
 						switch r.Method {
+						case "GET":
+							s.handleGetOrganizationRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "PATCH":
 							s.handleUpdateOrganizationRequest([1]string{
 								args[0],
 							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "PATCH")
+							s.notAllowed(w, r, "GET,PATCH")
 						}
 
 						return
@@ -289,34 +293,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									break
 								}
 
-								if len(elem) == 0 {
-									break
-								}
-								switch elem[0] {
-								case 'd': // Prefix: "dumps"
-									origElem := elem
-									if l := len("dumps"); len(elem) >= l && elem[0:l] == "dumps" {
-										elem = elem[l:]
-									} else {
-										break
-									}
-
-									if len(elem) == 0 {
-										// Leaf node.
-										switch r.Method {
-										case "POST":
-											s.handleUploadDatabaseDumpRequest([1]string{
-												args[0],
-											}, elemIsEscaped, w, r)
-										default:
-											s.notAllowed(w, r, "POST")
-										}
-
-										return
-									}
-
-									elem = origElem
-								}
 								// Param: "databaseName"
 								// Match until "/"
 								idx := strings.IndexByte(elem, '/')
@@ -697,6 +673,35 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										}
 
 										elem = origElem
+									case 'c': // Prefix: "configuration"
+										origElem := elem
+										if l := len("configuration"); len(elem) >= l && elem[0:l] == "configuration" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "GET":
+												s.handleGetGroupConfigurationRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											case "PATCH":
+												s.handleUpdateGroupConfigurationRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "GET,PATCH")
+											}
+
+											return
+										}
+
+										elem = origElem
 									case 'l': // Prefix: "locations/"
 										origElem := elem
 										if l := len("locations/"); len(elem) >= l && elem[0:l] == "locations/" {
@@ -970,8 +975,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 											args[0],
 											args[1],
 										}, elemIsEscaped, w, r)
+									case "GET":
+										s.handleGetOrganizationMemberRequest([2]string{
+											args[0],
+											args[1],
+										}, elemIsEscaped, w, r)
+									case "PATCH":
+										s.handleUpdateMemberRoleRequest([2]string{
+											args[0],
+											args[1],
+										}, elemIsEscaped, w, r)
 									default:
-										s.notAllowed(w, r, "DELETE")
+										s.notAllowed(w, r, "DELETE,GET,PATCH")
 									}
 
 									return
@@ -1314,7 +1329,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						break
 					}
 
-					// Param: "organizationName"
+					// Param: "organizationSlug"
 					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
 					if idx < 0 {
@@ -1325,11 +1340,19 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					if len(elem) == 0 {
 						switch method {
+						case "GET":
+							r.name = "GetOrganization"
+							r.summary = "Retrieve Organization"
+							r.operationID = "getOrganization"
+							r.pathPattern = "/v1/organizations/{organizationSlug}"
+							r.args = args
+							r.count = 1
+							return r, true
 						case "PATCH":
 							r.name = "UpdateOrganization"
 							r.summary = "Update Organization"
 							r.operationID = "updateOrganization"
-							r.pathPattern = "/v1/organizations/{organizationName}"
+							r.pathPattern = "/v1/organizations/{organizationSlug}"
 							r.args = args
 							r.count = 1
 							return r, true
@@ -1365,7 +1388,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "ListOrganizationAuditLogs"
 									r.summary = "List Audit Logs"
 									r.operationID = "listOrganizationAuditLogs"
-									r.pathPattern = "/v1/organizations/{organizationName}/audit-logs"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/audit-logs"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -1389,7 +1412,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "ListDatabases"
 									r.summary = "List Databases"
 									r.operationID = "listDatabases"
-									r.pathPattern = "/v1/organizations/{organizationName}/databases"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/databases"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -1397,7 +1420,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "CreateDatabase"
 									r.summary = "Create Database"
 									r.operationID = "createDatabase"
-									r.pathPattern = "/v1/organizations/{organizationName}/databases"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/databases"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -1414,36 +1437,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									break
 								}
 
-								if len(elem) == 0 {
-									break
-								}
-								switch elem[0] {
-								case 'd': // Prefix: "dumps"
-									origElem := elem
-									if l := len("dumps"); len(elem) >= l && elem[0:l] == "dumps" {
-										elem = elem[l:]
-									} else {
-										break
-									}
-
-									if len(elem) == 0 {
-										// Leaf node.
-										switch method {
-										case "POST":
-											r.name = "UploadDatabaseDump"
-											r.summary = "Upload SQLite Dump"
-											r.operationID = "uploadDatabaseDump"
-											r.pathPattern = "/v1/organizations/{organizationName}/databases/dumps"
-											r.args = args
-											r.count = 1
-											return r, true
-										default:
-											return
-										}
-									}
-
-									elem = origElem
-								}
 								// Param: "databaseName"
 								// Match until "/"
 								idx := strings.IndexByte(elem, '/')
@@ -1459,7 +1452,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "DeleteDatabase"
 										r.summary = "Delete Database"
 										r.operationID = "deleteDatabase"
-										r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}"
 										r.args = args
 										r.count = 2
 										return r, true
@@ -1467,7 +1460,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "GetDatabase"
 										r.summary = "Retrieve Database"
 										r.operationID = "getDatabase"
-										r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}"
 										r.args = args
 										r.count = 2
 										return r, true
@@ -1515,7 +1508,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "InvalidateDatabaseTokens"
 													r.summary = "Invalidate All Database Auth Tokens"
 													r.operationID = "invalidateDatabaseTokens"
-													r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/auth/rotate"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/auth/rotate"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -1540,7 +1533,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "CreateDatabaseToken"
 													r.summary = "Generate Database Auth Token"
 													r.operationID = "createDatabaseToken"
-													r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/auth/tokens"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/auth/tokens"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -1568,7 +1561,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "GetDatabaseConfiguration"
 												r.summary = "Retrieve Database Configuration"
 												r.operationID = "getDatabaseConfiguration"
-												r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/configuration"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/configuration"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1576,7 +1569,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "UpdateDatabaseConfiguration"
 												r.summary = "Update Database Configuration"
 												r.operationID = "updateDatabaseConfiguration"
-												r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/configuration"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/configuration"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1600,7 +1593,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "ListDatabaseInstances"
 												r.summary = "List Database Instances"
 												r.operationID = "listDatabaseInstances"
-												r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/instances"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/instances"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1629,7 +1622,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "GetDatabaseInstance"
 													r.summary = "Retrieve Database Instance"
 													r.operationID = "getDatabaseInstance"
-													r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/instances/{instanceName}"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/instances/{instanceName}"
 													r.args = args
 													r.count = 3
 													return r, true
@@ -1657,7 +1650,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "GetDatabaseStats"
 												r.summary = "Retrieve Database Stats"
 												r.operationID = "getDatabaseStats"
-												r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/stats"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/stats"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1682,7 +1675,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "GetDatabaseUsage"
 												r.summary = "Retrieve Database Usage"
 												r.operationID = "getDatabaseUsage"
-												r.pathPattern = "/v1/organizations/{organizationName}/databases/{databaseName}/usage"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/databases/{databaseName}/usage"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1715,7 +1708,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "ListGroups"
 									r.summary = "List Groups"
 									r.operationID = "listGroups"
-									r.pathPattern = "/v1/organizations/{organizationName}/groups"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/groups"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -1723,7 +1716,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "CreateGroup"
 									r.summary = "Create Group"
 									r.operationID = "createGroup"
-									r.pathPattern = "/v1/organizations/{organizationName}/groups"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/groups"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -1755,7 +1748,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "DeleteGroup"
 										r.summary = "Delete Group"
 										r.operationID = "deleteGroup"
-										r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}"
 										r.args = args
 										r.count = 2
 										return r, true
@@ -1763,7 +1756,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "GetGroup"
 										r.summary = "Retrieve Group"
 										r.operationID = "getGroup"
-										r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}"
 										r.args = args
 										r.count = 2
 										return r, true
@@ -1811,7 +1804,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "InvalidateGroupTokens"
 													r.summary = "Invalidate All Group Auth Tokens"
 													r.operationID = "invalidateGroupTokens"
-													r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/auth/rotate"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/auth/rotate"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -1836,7 +1829,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "CreateGroupToken"
 													r.summary = "Create Group Auth Token"
 													r.operationID = "createGroupToken"
-													r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/auth/tokens"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/auth/tokens"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -1846,6 +1839,39 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 											}
 
 											elem = origElem
+										}
+
+										elem = origElem
+									case 'c': // Prefix: "configuration"
+										origElem := elem
+										if l := len("configuration"); len(elem) >= l && elem[0:l] == "configuration" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "GET":
+												r.name = "GetGroupConfiguration"
+												r.summary = "Retrieve Group Configuration"
+												r.operationID = "getGroupConfiguration"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/configuration"
+												r.args = args
+												r.count = 2
+												return r, true
+											case "PATCH":
+												r.name = "UpdateGroupConfiguration"
+												r.summary = "Update Group Configuration"
+												r.operationID = "updateGroupConfiguration"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/configuration"
+												r.args = args
+												r.count = 2
+												return r, true
+											default:
+												return
+											}
 										}
 
 										elem = origElem
@@ -1869,7 +1895,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "RemoveLocationFromGroup"
 												r.summary = "Remove Location from Group"
 												r.operationID = "removeLocationFromGroup"
-												r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/locations/{location}"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}"
 												r.args = args
 												r.count = 3
 												return r, true
@@ -1877,7 +1903,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "AddLocationToGroup"
 												r.summary = "Add Location to Group"
 												r.operationID = "addLocationToGroup"
-												r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/locations/{location}"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/locations/{location}"
 												r.args = args
 												r.count = 3
 												return r, true
@@ -1902,7 +1928,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 												r.name = "TransferGroup"
 												r.summary = "Transfer Group"
 												r.operationID = "transferGroup"
-												r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/transfer"
+												r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/transfer"
 												r.args = args
 												r.count = 2
 												return r, true
@@ -1939,7 +1965,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "UnarchiveGroup"
 													r.summary = "Unarchive Group"
 													r.operationID = "unarchiveGroup"
-													r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/unarchive"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/unarchive"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -1964,7 +1990,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 													r.name = "UpdateGroupDatabases"
 													r.summary = "Update Databases in a Group"
 													r.operationID = "updateGroupDatabases"
-													r.pathPattern = "/v1/organizations/{organizationName}/groups/{groupName}/update"
+													r.pathPattern = "/v1/organizations/{organizationSlug}/groups/{groupName}/update"
 													r.args = args
 													r.count = 2
 													return r, true
@@ -2012,7 +2038,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "ListOrganizationInvites"
 										r.summary = "List Invites"
 										r.operationID = "listOrganizationInvites"
-										r.pathPattern = "/v1/organizations/{organizationName}/invites"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/invites"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -2020,7 +2046,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "InviteOrganizationMember"
 										r.summary = "Invite Organization Member"
 										r.operationID = "inviteOrganizationMember"
-										r.pathPattern = "/v1/organizations/{organizationName}/invites"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/invites"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -2049,7 +2075,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 											r.name = "DeleteOrganizationInviteByEmail"
 											r.summary = "Delete Invite"
 											r.operationID = "deleteOrganizationInviteByEmail"
-											r.pathPattern = "/v1/organizations/{organizationName}/invites/{email}"
+											r.pathPattern = "/v1/organizations/{organizationSlug}/invites/{email}"
 											r.args = args
 											r.count = 2
 											return r, true
@@ -2077,7 +2103,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "ListOrganizationInvoices"
 										r.summary = "List Invoices"
 										r.operationID = "listOrganizationInvoices"
-										r.pathPattern = "/v1/organizations/{organizationName}/invoices"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/invoices"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -2104,7 +2130,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "ListOrganizationMembers"
 									r.summary = "List Members"
 									r.operationID = "listOrganizationMembers"
-									r.pathPattern = "/v1/organizations/{organizationName}/members"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/members"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -2112,7 +2138,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "AddOrganizationMember"
 									r.summary = "Add Member"
 									r.operationID = "addOrganizationMember"
-									r.pathPattern = "/v1/organizations/{organizationName}/members"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/members"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -2141,7 +2167,23 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "RemoveOrganizationMember"
 										r.summary = "Remove Member"
 										r.operationID = "removeOrganizationMember"
-										r.pathPattern = "/v1/organizations/{organizationName}/members/{username}"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/members/{username}"
+										r.args = args
+										r.count = 2
+										return r, true
+									case "GET":
+										r.name = "GetOrganizationMember"
+										r.summary = "Retrieve Member"
+										r.operationID = "getOrganizationMember"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/members/{username}"
+										r.args = args
+										r.count = 2
+										return r, true
+									case "PATCH":
+										r.name = "UpdateMemberRole"
+										r.summary = "Update Member Role"
+										r.operationID = "updateMemberRole"
+										r.pathPattern = "/v1/organizations/{organizationSlug}/members/{username}"
 										r.args = args
 										r.count = 2
 										return r, true
@@ -2169,7 +2211,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "ListOrganizationPlans"
 									r.summary = "List Plans"
 									r.operationID = "listOrganizationPlans"
-									r.pathPattern = "/v1/organizations/{organizationName}/plans"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/plans"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -2194,7 +2236,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "GetOrganizationSubscription"
 									r.summary = "Current Subscription"
 									r.operationID = "getOrganizationSubscription"
-									r.pathPattern = "/v1/organizations/{organizationName}/subscription"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/subscription"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -2219,7 +2261,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									r.name = "GetOrganizationUsage"
 									r.summary = "Organization Usage"
 									r.operationID = "getOrganizationUsage"
-									r.pathPattern = "/v1/organizations/{organizationName}/usage"
+									r.pathPattern = "/v1/organizations/{organizationSlug}/usage"
 									r.args = args
 									r.count = 1
 									return r, true

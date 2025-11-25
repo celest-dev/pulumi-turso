@@ -38,15 +38,20 @@ type DatabaseTokenState struct {
 }
 
 var (
-	_ infer.CustomCreate[DatabaseTokenArgs, DatabaseTokenState] = DatabaseToken{}
-	_ infer.CustomRead[DatabaseTokenArgs, DatabaseTokenState]   = DatabaseToken{}
-	_ infer.CustomDiff[DatabaseTokenArgs, DatabaseTokenState]   = DatabaseToken{}
+	_ infer.CustomCreate[DatabaseTokenArgs, DatabaseTokenState] = (*DatabaseToken)(nil)
+	_ infer.CustomRead[DatabaseTokenArgs, DatabaseTokenState]   = (*DatabaseToken)(nil)
+	_ infer.CustomDiff[DatabaseTokenArgs, DatabaseTokenState]   = (*DatabaseToken)(nil)
 )
 
-func (DatabaseToken) Create(ctx context.Context, name string, input DatabaseTokenArgs, preview bool) (string, DatabaseTokenState, error) {
+func (*DatabaseToken) Create(ctx context.Context, req infer.CreateRequest[DatabaseTokenArgs]) (infer.CreateResponse[DatabaseTokenState], error) {
+	input := req.Inputs
+	preview := req.DryRun
 	if preview {
-		return "", DatabaseTokenState{
-			DatabaseTokenArgs: input,
+		return infer.CreateResponse[DatabaseTokenState]{
+			ID: req.Name,
+			Output: DatabaseTokenState{
+				DatabaseTokenArgs: input,
+			},
 		}, nil
 	}
 
@@ -58,7 +63,7 @@ func (DatabaseToken) Create(ctx context.Context, name string, input DatabaseToke
 	if input.Expiration != nil {
 		expirationDuration, err := time.ParseDuration(*input.Expiration)
 		if err != nil {
-			return "", DatabaseTokenState{}, fmt.Errorf("error parsing expiration duration: %w", err)
+			return infer.CreateResponse[DatabaseTokenState]{}, fmt.Errorf("error parsing expiration duration: %w", err)
 		}
 		expiration = tursoclient.NewOptString(expirationDuration.String())
 		expiresAt = time.Now().Add(expirationDuration).Format(time.RFC3339)
@@ -77,31 +82,36 @@ func (DatabaseToken) Create(ctx context.Context, name string, input DatabaseToke
 			}),
 		}),
 		tursoclient.CreateDatabaseTokenParams{
-			OrganizationName: config.OrganizationName,
+			OrganizationSlug: config.OrganizationSlug,
 			DatabaseName:     input.Database,
 			Expiration:       expiration,
 			Authorization:    authorization,
 		})
 	if err != nil {
-		return "", DatabaseTokenState{}, fmt.Errorf("error creating database token: %w", err)
+		return infer.CreateResponse[DatabaseTokenState]{}, fmt.Errorf("error creating database token: %w", err)
 	}
 	switch token := token.(type) {
 	case *tursoclient.CreateDatabaseTokenOK:
-		return input.Database, DatabaseTokenState{
-			DatabaseTokenArgs: input,
-			ExpiresAt:         expiresAt,
-			Token:             token.Jwt.Value,
+		return infer.CreateResponse[DatabaseTokenState]{
+			ID: req.Name,
+			Output: DatabaseTokenState{
+				DatabaseTokenArgs: input,
+				ExpiresAt:         expiresAt,
+				Token:             token.Jwt.Value,
+			},
 		}, nil
 	default:
-		return "", DatabaseTokenState{}, fmt.Errorf("unexpected response creating database token: %T", token)
+		return infer.CreateResponse[DatabaseTokenState]{}, fmt.Errorf("unexpected response creating database token: %T", token)
 	}
 }
 
-func (DatabaseToken) Read(ctx context.Context, id string, inputs DatabaseTokenArgs, state DatabaseTokenState) (canonicalID string, normalizedInputs DatabaseTokenArgs, normalizedState DatabaseTokenState, err error) {
-	return id, inputs, state, nil
+func (*DatabaseToken) Read(ctx context.Context, req infer.ReadRequest[DatabaseTokenArgs, DatabaseTokenState]) (infer.ReadResponse[DatabaseTokenArgs, DatabaseTokenState], error) {
+	return infer.ReadResponse[DatabaseTokenArgs, DatabaseTokenState](req), nil
 }
 
-func (DatabaseToken) Diff(ctx context.Context, id string, olds DatabaseTokenState, news DatabaseTokenArgs) (p.DiffResponse, error) {
+func (*DatabaseToken) Diff(ctx context.Context, req infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]) (infer.DiffResponse, error) {
+	olds := req.State
+	news := req.Inputs
 	diff := map[string]p.PropertyDiff{}
 	if olds.Database != news.Database {
 		diff["database"] = p.PropertyDiff{Kind: p.UpdateReplace}
@@ -118,13 +128,13 @@ func (DatabaseToken) Diff(ctx context.Context, id string, olds DatabaseTokenStat
 	if olds.ExpiresAt != "" {
 		oldExp, err := time.Parse(time.RFC3339, olds.ExpiresAt)
 		if err != nil {
-			return p.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
+			return infer.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
 		}
 		if time.Now().After(oldExp) {
 			diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
 		}
 	}
-	return p.DiffResponse{
+	return infer.DiffResponse{
 		DeleteBeforeReplace: false,
 		HasChanges:          len(diff) > 0,
 		DetailedDiff:        diff,
