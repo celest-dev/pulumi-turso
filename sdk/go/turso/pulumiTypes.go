@@ -15,11 +15,16 @@ import (
 var _ = internal.GetEnvOrDefault
 
 type DatabaseInstanceState struct {
+	// The hostname of this database instance.
 	Hostname string `pulumi:"hostname"`
-	Name     string `pulumi:"name"`
-	Region   string `pulumi:"region"`
-	Type     string `pulumi:"type"`
-	Uuid     string `pulumi:"uuid"`
+	// The name of this database instance.
+	Name string `pulumi:"name"`
+	// The region where this instance is located.
+	Region string `pulumi:"region"`
+	// The type of instance (primary or replica).
+	Type string `pulumi:"type"`
+	// The unique identifier of this instance.
+	Uuid string `pulumi:"uuid"`
 }
 
 type DatabaseInstanceStateOutput struct{ *pulumi.OutputState }
@@ -36,22 +41,27 @@ func (o DatabaseInstanceStateOutput) ToDatabaseInstanceStateOutputWithContext(ct
 	return o
 }
 
+// The hostname of this database instance.
 func (o DatabaseInstanceStateOutput) Hostname() pulumi.StringOutput {
 	return o.ApplyT(func(v DatabaseInstanceState) string { return v.Hostname }).(pulumi.StringOutput)
 }
 
+// The name of this database instance.
 func (o DatabaseInstanceStateOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v DatabaseInstanceState) string { return v.Name }).(pulumi.StringOutput)
 }
 
+// The region where this instance is located.
 func (o DatabaseInstanceStateOutput) Region() pulumi.StringOutput {
 	return o.ApplyT(func(v DatabaseInstanceState) string { return v.Region }).(pulumi.StringOutput)
 }
 
+// The type of instance (primary or replica).
 func (o DatabaseInstanceStateOutput) Type() pulumi.StringOutput {
 	return o.ApplyT(func(v DatabaseInstanceState) string { return v.Type }).(pulumi.StringOutput)
 }
 
+// The unique identifier of this instance.
 func (o DatabaseInstanceStateOutput) Uuid() pulumi.StringOutput {
 	return o.ApplyT(func(v DatabaseInstanceState) string { return v.Uuid }).(pulumi.StringOutput)
 }
@@ -77,9 +87,12 @@ func (o DatabaseInstanceStateMapOutput) MapIndex(k pulumi.StringInput) DatabaseI
 }
 
 type DatabaseSeedArgs struct {
-	Name      *string          `pulumi:"name"`
-	Timestamp *time.Time       `pulumi:"timestamp"`
-	Type      DatabaseSeedType `pulumi:"type"`
+	// The name of the database to seed from (when type is 'database') or the URL of the dump file (when type is 'dump').
+	Name *string `pulumi:"name"`
+	// A specific point in time to seed from. Only applies when seeding from a database.
+	Timestamp *time.Time `pulumi:"timestamp"`
+	// The type of seed to use.
+	Type DatabaseSeedType `pulumi:"type"`
 }
 
 // DatabaseSeedArgsInput is an input type that accepts DatabaseSeedArgsArgs and DatabaseSeedArgsOutput values.
@@ -94,9 +107,12 @@ type DatabaseSeedArgsInput interface {
 }
 
 type DatabaseSeedArgsArgs struct {
-	Name      pulumi.StringPtrInput `pulumi:"name"`
-	Timestamp time.TimePtrInput     `pulumi:"timestamp"`
-	Type      DatabaseSeedTypeInput `pulumi:"type"`
+	// The name of the database to seed from (when type is 'database') or the URL of the dump file (when type is 'dump').
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// A specific point in time to seed from. Only applies when seeding from a database.
+	Timestamp time.TimePtrInput `pulumi:"timestamp"`
+	// The type of seed to use.
+	Type DatabaseSeedTypeInput `pulumi:"type"`
 }
 
 func (DatabaseSeedArgsArgs) ElementType() reflect.Type {
@@ -176,14 +192,17 @@ func (o DatabaseSeedArgsOutput) ToDatabaseSeedArgsPtrOutputWithContext(ctx conte
 	}).(DatabaseSeedArgsPtrOutput)
 }
 
+// The name of the database to seed from (when type is 'database') or the URL of the dump file (when type is 'dump').
 func (o DatabaseSeedArgsOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v DatabaseSeedArgs) *string { return v.Name }).(pulumi.StringPtrOutput)
 }
 
+// A specific point in time to seed from. Only applies when seeding from a database.
 func (o DatabaseSeedArgsOutput) Timestamp() time.TimePtrOutput {
 	return o.ApplyT(func(v DatabaseSeedArgs) *time.Time { return v.Timestamp }).(time.TimePtrOutput)
 }
 
+// The type of seed to use.
 func (o DatabaseSeedArgsOutput) Type() DatabaseSeedTypeOutput {
 	return o.ApplyT(func(v DatabaseSeedArgs) DatabaseSeedType { return v.Type }).(DatabaseSeedTypeOutput)
 }
@@ -212,6 +231,7 @@ func (o DatabaseSeedArgsPtrOutput) Elem() DatabaseSeedArgsOutput {
 	}).(DatabaseSeedArgsOutput)
 }
 
+// The name of the database to seed from (when type is 'database') or the URL of the dump file (when type is 'dump').
 func (o DatabaseSeedArgsPtrOutput) Name() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *DatabaseSeedArgs) *string {
 		if v == nil {
@@ -221,6 +241,7 @@ func (o DatabaseSeedArgsPtrOutput) Name() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// A specific point in time to seed from. Only applies when seeding from a database.
 func (o DatabaseSeedArgsPtrOutput) Timestamp() time.TimePtrOutput {
 	return o.ApplyT(func(v *DatabaseSeedArgs) *time.Time {
 		if v == nil {
@@ -230,6 +251,7 @@ func (o DatabaseSeedArgsPtrOutput) Timestamp() time.TimePtrOutput {
 	}).(time.TimePtrOutput)
 }
 
+// The type of seed to use.
 func (o DatabaseSeedArgsPtrOutput) Type() DatabaseSeedTypePtrOutput {
 	return o.ApplyT(func(v *DatabaseSeedArgs) *DatabaseSeedType {
 		if v == nil {

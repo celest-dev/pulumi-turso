@@ -11,10 +11,13 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// Configuration for the Turso provider.
 type Provider struct {
 	pulumi.ProviderResourceState
 
-	ApiToken     pulumi.StringPtrOutput `pulumi:"apiToken"`
+	// The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.
+	ApiToken pulumi.StringPtrOutput `pulumi:"apiToken"`
+	// The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.
 	Organization pulumi.StringPtrOutput `pulumi:"organization"`
 }
 
@@ -35,13 +38,17 @@ func NewProvider(ctx *pulumi.Context,
 }
 
 type providerArgs struct {
-	ApiToken     *string `pulumi:"apiToken"`
+	// The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.
+	ApiToken *string `pulumi:"apiToken"`
+	// The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.
 	Organization *string `pulumi:"organization"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
-	ApiToken     pulumi.StringPtrInput
+	// The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.
+	ApiToken pulumi.StringPtrInput
+	// The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.
 	Organization pulumi.StringPtrInput
 }
 
@@ -82,10 +89,12 @@ func (o ProviderOutput) ToProviderOutputWithContext(ctx context.Context) Provide
 	return o
 }
 
+// The Turso API token. Can also be set via the TURSO_API_TOKEN environment variable. If not provided, the provider will attempt to use the Turso CLI authentication.
 func (o ProviderOutput) ApiToken() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.ApiToken }).(pulumi.StringPtrOutput)
 }
 
+// The Turso organization slug. Can also be set via the TURSO_ORGANIZATION environment variable.
 func (o ProviderOutput) Organization() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.Organization }).(pulumi.StringPtrOutput)
 }

@@ -11,11 +11,26 @@ import (
 
 type Group struct{}
 
+var _ infer.Annotated = (*Group)(nil)
+
+func (g *Group) Annotate(a infer.Annotator) {
+	a.Describe(&g, "A Turso group. Groups are collections of databases that share the same replication configuration and can be managed together.")
+}
+
 type GroupArgs struct {
 	Name             string   `pulumi:"name"`
 	PrimaryLocation  string   `pulumi:"primaryLocation"`
 	ReplicaLocations []string `pulumi:"replicaLocations,optional"`
 	Extensions       []string `pulumi:"extensions,optional"`
+}
+
+var _ infer.Annotated = (*GroupArgs)(nil)
+
+func (args *GroupArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.Name, "The name of the group. Must be unique within the organization.")
+	a.Describe(&args.PrimaryLocation, "The primary location (region) for the group. This is where the primary database instance will be created.")
+	a.Describe(&args.ReplicaLocations, "Additional locations where database replicas will be created.")
+	a.Describe(&args.Extensions, "SQLite extensions to enable for databases in this group. Use 'all' to enable all available extensions, or specify individual extension names.")
 }
 
 type GroupState struct {
@@ -24,6 +39,16 @@ type GroupState struct {
 	Name             string   `pulumi:"name" json:"name"`
 	Primary          string   `pulumi:"primary" json:"primary"`
 	UUID             string   `pulumi:"uuid" json:"uuid"`
+}
+
+var _ infer.Annotated = (*GroupState)(nil)
+
+func (s *GroupState) Annotate(a infer.Annotator) {
+	a.Describe(&s.DeleteProtection, "Whether deletion protection is enabled for this group.")
+	a.Describe(&s.Locations, "All locations where this group has database instances.")
+	a.Describe(&s.Name, "The name of the group.")
+	a.Describe(&s.Primary, "The primary location of the group.")
+	a.Describe(&s.UUID, "The unique identifier of the group.")
 }
 
 var (
