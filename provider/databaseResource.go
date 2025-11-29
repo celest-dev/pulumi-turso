@@ -19,12 +19,12 @@ func (d *Database) Annotate(a infer.Annotator) {
 }
 
 type DatabaseArgs struct {
-	Group       string            `pulumi:"group"`
-	Name        string            `pulumi:"name"`
+	Group       string            `pulumi:"group" provider:"replaceOnChanges"`
+	Name        string            `pulumi:"name" provider:"replaceOnChanges"`
 	BlockReads  *bool             `pulumi:"blockReads,optional"`
 	BlockWrites *bool             `pulumi:"blockWrites,optional"`
 	SizeLimit   *string           `pulumi:"sizeLimit,optional"`
-	Seed        *DatabaseSeedArgs `pulumi:"seed,optional"`
+	Seed        *DatabaseSeedArgs `pulumi:"seed,optional" provider:"replaceOnChanges"`
 }
 
 var _ infer.Annotated = (*DatabaseArgs)(nil)
@@ -122,7 +122,6 @@ var (
 	_ infer.CustomRead[DatabaseArgs, DatabaseState]   = (*Database)(nil)
 	_ infer.CustomUpdate[DatabaseArgs, DatabaseState] = (*Database)(nil)
 	_ infer.CustomDelete[DatabaseState]               = (*Database)(nil)
-	_ infer.CustomDiff[DatabaseArgs, DatabaseState]   = (*Database)(nil)
 )
 
 func (*Database) Create(ctx context.Context, req infer.CreateRequest[DatabaseArgs]) (infer.CreateResponse[DatabaseState], error) {
@@ -262,32 +261,6 @@ func (*Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseSta
 	}
 
 	return infer.DeleteResponse{}, nil
-}
-
-func (*Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, DatabaseState]) (infer.DiffResponse, error) {
-	olds := req.State
-	news := req.Inputs
-	diff := map[string]p.PropertyDiff{}
-	if olds.BlockReads != UnwrapOrZero(news.BlockReads) {
-		diff["blockReads"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if olds.BlockWrites != UnwrapOrZero(news.BlockWrites) {
-		diff["blockWrites"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if olds.SizeLimit != UnwrapOrZero(news.SizeLimit) {
-		diff["sizeLimit"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if olds.Group != news.Group {
-		diff["group"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if olds.Name != news.Name {
-		diff["name"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	return infer.DiffResponse{
-		DeleteBeforeReplace: true,
-		HasChanges:          len(diff) > 0,
-		DetailedDiff:        diff,
-	}, nil
 }
 
 func optString(s *string) tursoclient.OptString {

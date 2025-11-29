@@ -240,15 +240,18 @@
         },
         "group": {
           "type": "string",
-          "description": "The name of the group where the database belongs. The group must already exist."
+          "description": "The name of the group where the database belongs. The group must already exist.",
+          "replaceOnChanges": true
         },
         "name": {
           "type": "string",
-          "description": "The name of the database. Must be unique within the organization."
+          "description": "The name of the database. Must be unique within the organization.",
+          "replaceOnChanges": true
         },
         "seed": {
           "$ref": "#/types/turso:index:DatabaseSeedArgs",
-          "description": "Configuration for seeding the database from an existing database or dump."
+          "description": "Configuration for seeding the database from an existing database or dump.",
+          "replaceOnChanges": true
         },
         "sizeLimit": {
           "type": "string",
@@ -367,11 +370,13 @@
         },
         "name": {
           "type": "string",
-          "description": "The name of the group. Must be unique within the organization."
+          "description": "The name of the group. Must be unique within the organization.",
+          "replaceOnChanges": true
         },
         "primaryLocation": {
           "type": "string",
-          "description": "The primary location (region) for the group. This is where the primary database instance will be created."
+          "description": "The primary location (region) for the group. This is where the primary database instance will be created.",
+          "replaceOnChanges": true
         },
         "replicaLocations": {
           "type": "array",
