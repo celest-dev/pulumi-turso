@@ -3,11 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/celest-dev/pulumi-turso/provider/internal/tursoclient"
-	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
@@ -62,7 +60,6 @@ func (state *GroupTokenState) Annotate(a infer.Annotator) {
 var (
 	_ infer.CustomCreate[GroupTokenArgs, GroupTokenState] = (*GroupToken)(nil)
 	_ infer.CustomRead[GroupTokenArgs, GroupTokenState]   = (*GroupToken)(nil)
-	_ infer.CustomDiff[GroupTokenArgs, GroupTokenState]   = (*GroupToken)(nil)
 )
 
 func (*GroupToken) Create(ctx context.Context, req infer.CreateRequest[GroupTokenArgs]) (infer.CreateResponse[GroupTokenState], error) {
@@ -129,42 +126,4 @@ func (*GroupToken) Create(ctx context.Context, req infer.CreateRequest[GroupToke
 
 func (*GroupToken) Read(ctx context.Context, req infer.ReadRequest[GroupTokenArgs, GroupTokenState]) (infer.ReadResponse[GroupTokenArgs, GroupTokenState], error) {
 	return infer.ReadResponse[GroupTokenArgs, GroupTokenState](req), nil
-}
-
-func (*GroupToken) Diff(ctx context.Context, req infer.DiffRequest[GroupTokenArgs, GroupTokenState]) (infer.DiffResponse, error) {
-	olds := req.State
-	news := req.Inputs
-	diff := map[string]p.PropertyDiff{}
-	if olds.Group != news.Group {
-		diff["group"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	// Compare authorization values, treating nil as equivalent to not having a value
-	oldAuth := olds.Authorization
-	newAuth := news.Authorization
-	if (oldAuth == nil) != (newAuth == nil) || (oldAuth != nil && newAuth != nil && *oldAuth != *newAuth) {
-		diff["authorization"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if !slices.Equal(olds.ReadAttach, news.ReadAttach) {
-		diff["readAttach"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	// Compare expiration values, treating nil as equivalent to not having a value
-	oldExp := olds.Expiration
-	newExp := news.Expiration
-	if (oldExp == nil) != (newExp == nil) || (oldExp != nil && newExp != nil && *oldExp != *newExp) {
-		diff["expiration"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if olds.ExpiresAt != "" {
-		oldExpTime, err := time.Parse(time.RFC3339, olds.ExpiresAt)
-		if err != nil {
-			return infer.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
-		}
-		if time.Now().After(oldExpTime) {
-			diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
-		}
-	}
-	return infer.DiffResponse{
-		DeleteBeforeReplace: false,
-		HasChanges:          len(diff) > 0,
-		DetailedDiff:        diff,
-	}, nil
 }

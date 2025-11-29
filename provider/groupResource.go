@@ -18,8 +18,8 @@ func (g *Group) Annotate(a infer.Annotator) {
 }
 
 type GroupArgs struct {
-	Name             string   `pulumi:"name"`
-	PrimaryLocation  string   `pulumi:"primaryLocation"`
+	Name             string   `pulumi:"name" provider:"replaceOnChanges"`
+	PrimaryLocation  string   `pulumi:"primaryLocation" provider:"replaceOnChanges"`
 	ReplicaLocations []string `pulumi:"replicaLocations,optional"`
 	Extensions       []string `pulumi:"extensions,optional"`
 }
@@ -54,9 +54,7 @@ func (s *GroupState) Annotate(a infer.Annotator) {
 var (
 	_ infer.CustomCreate[GroupArgs, GroupState] = (*Group)(nil)
 	_ infer.CustomRead[GroupArgs, GroupState]   = (*Group)(nil)
-	_ infer.CustomUpdate[GroupArgs, GroupState] = (*Group)(nil)
 	_ infer.CustomDelete[GroupState]            = (*Group)(nil)
-	_ infer.CustomDiff[GroupArgs, GroupState]   = (*Group)(nil)
 )
 
 func (*Group) Create(ctx context.Context, req infer.CreateRequest[GroupArgs]) (infer.CreateResponse[GroupState], error) {
@@ -149,10 +147,6 @@ func (*Group) Read(ctx context.Context, req infer.ReadRequest[GroupArgs, GroupSt
 	}, nil
 }
 
-func (*Group) Update(ctx context.Context, req infer.UpdateRequest[GroupArgs, GroupState]) (infer.UpdateResponse[GroupState], error) {
-	panic("updating groups is not supported")
-}
-
 func (*Group) Delete(ctx context.Context, req infer.DeleteRequest[GroupState]) (infer.DeleteResponse, error) {
 	p.GetLogger(ctx).Infof("deleting group %s", req.ID)
 
@@ -168,25 +162,6 @@ func (*Group) Delete(ctx context.Context, req infer.DeleteRequest[GroupState]) (
 	}
 
 	return infer.DeleteResponse{}, nil
-}
-
-func (*Group) Diff(ctx context.Context, req infer.DiffRequest[GroupArgs, GroupState]) (infer.DiffResponse, error) {
-	olds := req.State
-	news := req.Inputs
-	diff := map[string]p.PropertyDiff{}
-	deleteBeforeReplace := false
-	if olds.Name != news.Name {
-		diff["name"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if olds.Primary != news.PrimaryLocation {
-		diff["primaryLocation"] = p.PropertyDiff{Kind: p.UpdateReplace}
-		deleteBeforeReplace = true
-	}
-	return infer.DiffResponse{
-		DeleteBeforeReplace: deleteBeforeReplace,
-		HasChanges:          len(diff) > 0,
-		DetailedDiff:        diff,
-	}, nil
 }
 
 func (config Config) readGroupResource(ctx context.Context, name string) (GroupState, error) {

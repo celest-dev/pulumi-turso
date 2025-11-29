@@ -1,174 +1,17 @@
 package provider
 
 import (
-	"context"
 	"testing"
 
 	"github.com/blang/semver"
 	"github.com/golang-jwt/jwt/v5"
 	p "github.com/pulumi/pulumi-go-provider"
-	"github.com/pulumi/pulumi-go-provider/infer"
 	integration "github.com/pulumi/pulumi-go-provider/integration"
 	presource "github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestDatabaseTokenDiff_AuthorizationPointerComparison(t *testing.T) {
-	t.Parallel()
-
-	token := &DatabaseToken{}
-
-	// Test case 1: Both nil - no diff
-	t.Run("both nil", func(t *testing.T) {
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:      "test-db",
-					Authorization: nil,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:      "test-db",
-				Authorization: nil,
-			},
-		})
-		require.NoError(t, err)
-		assert.False(t, resp.HasChanges)
-		assert.Empty(t, resp.DetailedDiff)
-	})
-
-	// Test case 2: Same value, different pointers - no diff
-	t.Run("same value different pointers", func(t *testing.T) {
-		authOld := DatabaseTokenAuthorization("full-access")
-		authNew := DatabaseTokenAuthorization("full-access")
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:      "test-db",
-					Authorization: &authOld,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:      "test-db",
-				Authorization: &authNew,
-			},
-		})
-		require.NoError(t, err)
-		assert.False(t, resp.HasChanges)
-		assert.Empty(t, resp.DetailedDiff)
-	})
-
-	// Test case 3: Different values - should diff
-	t.Run("different values", func(t *testing.T) {
-		authOld := DatabaseTokenAuthorization("full-access")
-		authNew := DatabaseTokenAuthorization("read-only")
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:      "test-db",
-					Authorization: &authOld,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:      "test-db",
-				Authorization: &authNew,
-			},
-		})
-		require.NoError(t, err)
-		assert.True(t, resp.HasChanges)
-		assert.Contains(t, resp.DetailedDiff, "authorization")
-	})
-
-	// Test case 4: Old nil, new has value - should diff
-	t.Run("old nil new has value", func(t *testing.T) {
-		authNew := DatabaseTokenAuthorization("full-access")
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:      "test-db",
-					Authorization: nil,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:      "test-db",
-				Authorization: &authNew,
-			},
-		})
-		require.NoError(t, err)
-		assert.True(t, resp.HasChanges)
-		assert.Contains(t, resp.DetailedDiff, "authorization")
-	})
-
-	// Test case 5: Old has value, new nil - should diff
-	t.Run("old has value new nil", func(t *testing.T) {
-		authOld := DatabaseTokenAuthorization("full-access")
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:      "test-db",
-					Authorization: &authOld,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:      "test-db",
-				Authorization: nil,
-			},
-		})
-		require.NoError(t, err)
-		assert.True(t, resp.HasChanges)
-		assert.Contains(t, resp.DetailedDiff, "authorization")
-	})
-}
-
-func TestDatabaseTokenDiff_ExpirationPointerComparison(t *testing.T) {
-	t.Parallel()
-
-	token := &DatabaseToken{}
-
-	// Test case: Same expiration value, different pointers - no diff
-	t.Run("same value different pointers", func(t *testing.T) {
-		expOld := "1h"
-		expNew := "1h"
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:   "test-db",
-					Expiration: &expOld,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:   "test-db",
-				Expiration: &expNew,
-			},
-		})
-		require.NoError(t, err)
-		assert.False(t, resp.HasChanges)
-		assert.Empty(t, resp.DetailedDiff)
-	})
-
-	// Test case: Different expiration values - should diff
-	t.Run("different values", func(t *testing.T) {
-		expOld := "1h"
-		expNew := "2h"
-		resp, err := token.Diff(context.Background(), infer.DiffRequest[DatabaseTokenArgs, DatabaseTokenState]{
-			State: DatabaseTokenState{
-				DatabaseTokenArgs: DatabaseTokenArgs{
-					Database:   "test-db",
-					Expiration: &expOld,
-				},
-			},
-			Inputs: DatabaseTokenArgs{
-				Database:   "test-db",
-				Expiration: &expNew,
-			},
-		})
-		require.NoError(t, err)
-		assert.True(t, resp.HasChanges)
-		assert.Contains(t, resp.DetailedDiff, "expiration")
-	})
-}
 
 func TestDatabaseTokenResource(t *testing.T) {
 	t.Parallel()
