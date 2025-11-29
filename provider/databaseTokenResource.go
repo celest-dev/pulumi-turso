@@ -138,21 +138,27 @@ func (*DatabaseToken) Diff(ctx context.Context, req infer.DiffRequest[DatabaseTo
 	if olds.Database != news.Database {
 		diff["database"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
-	if olds.Authorization != news.Authorization {
+	// Compare authorization values, treating nil as equivalent to not having a value
+	oldAuth := olds.Authorization
+	newAuth := news.Authorization
+	if (oldAuth == nil) != (newAuth == nil) || (oldAuth != nil && newAuth != nil && *oldAuth != *newAuth) {
 		diff["authorization"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
 	if !slices.Equal(olds.ReadAttach, news.ReadAttach) {
 		diff["readAttach"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
-	if olds.Expiration != news.Expiration {
+	// Compare expiration values, treating nil as equivalent to not having a value
+	oldExp := olds.Expiration
+	newExp := news.Expiration
+	if (oldExp == nil) != (newExp == nil) || (oldExp != nil && newExp != nil && *oldExp != *newExp) {
 		diff["expiration"] = p.PropertyDiff{Kind: p.UpdateReplace}
 	}
 	if olds.ExpiresAt != "" {
-		oldExp, err := time.Parse(time.RFC3339, olds.ExpiresAt)
+		oldExpTime, err := time.Parse(time.RFC3339, olds.ExpiresAt)
 		if err != nil {
 			return infer.DiffResponse{}, fmt.Errorf("error parsing old expiration time: %w", err)
 		}
-		if time.Now().After(oldExp) {
+		if time.Now().After(oldExpTime) {
 			diff["expiresAt"] = p.PropertyDiff{Kind: p.UpdateReplace}
 		}
 	}
