@@ -8,7 +8,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/celest-dev/pulumi-turso/provider v0.0.0-00010101000000-000000000000
 	github.com/pulumi/pulumi-go-provider v1.2.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
